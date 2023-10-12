@@ -4,6 +4,8 @@ import mediapipe as mp
 import numpy as np
 from typing import Dict, Tuple
 
+from skellysnapshot.pose_estimation_2d.snapshot_data_2d import SnapshotData2d
+
 mp_drawing = mp.solutions.drawing_utils
 mp_holistic = mp.solutions.holistic
 
@@ -20,11 +22,6 @@ class MediapipeLandmarkData:
     body_hands_face_landmarks: np.ndarray
     pose_visibility: np.ndarray
 
-@dataclass
-class Data2D:
-    data_2d_camera_frame_marker_dimension: np.ndarray
-    data_2d_camera_marker_visibility: np.ndarray
-    annotated_images: Dict[str, np.ndarray] 
 
 
 mediapipe_parameters = {
@@ -65,7 +62,7 @@ def run_mediapipe_detection(snapshots: Dict[str, np.ndarray], holistic_tracker):
     XY_data_for_all_cameras = np.stack(XY_data_for_all_cameras_list, axis=0)
     visibility_data_for_all_cameras = np.stack(visibility_data_for_all_cameras_list, axis=0)
 
-    return Data2D(data_2d_camera_frame_marker_dimension=XY_data_for_all_cameras, 
+    return SnapshotData2d(data_2d_camera_frame_marker_dimension=XY_data_for_all_cameras,
                   data_2d_camera_marker_visibility=visibility_data_for_all_cameras, 
                   annotated_images = annotated_images)
 
