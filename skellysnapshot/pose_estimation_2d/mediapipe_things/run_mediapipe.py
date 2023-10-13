@@ -29,7 +29,7 @@ def run_mediapipe_detection(snapshot: Dict[str, np.ndarray]):
         landmark_data, annotated_img = process_image(image, holistic_tracker)
 
         # Append the coordinates and visibility data to the lists
-        XY_data_for_all_cameras_list.append(landmark_data.body_hands_face_2d_data)
+        XY_data_for_all_cameras_list.append(landmark_data.pose_2d_data)
         visibility_data_for_all_cameras_list.append(landmark_data.pose_visibility)
 
         # Add the annotated image to the dictionary
