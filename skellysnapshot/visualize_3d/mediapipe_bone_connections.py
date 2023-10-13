@@ -44,13 +44,15 @@ mediapipe_connections = {'shoulders':['left_shoulder','right_shoulder'],
     'left_lower_leg':['left_knee','left_ankle'],
     'left_heel_connection':['left_ankle','left_heel'],
     'left_foot':['left_heel','left_foot_index'],
-
+    'left_upper_foot': ['left_ankle','left_foot_index'],
     'right_upper_arm':['right_shoulder','right_elbow'],
     'right_lower_arm':['right_elbow','right_wrist'],
     'right_upper_leg':['right_hip','right_knee'],
     'right_lower_leg':['right_knee','right_ankle'],
     'right_heel_connection':['right_ankle','right_heel'],
-    'right_foot':['right_heel','right_foot_index']}
+    'right_foot':['right_heel','right_foot_index'],
+    'right_upper_foot': ['right_ankle', 'right_foot_index'],
+    }
 
 
 
