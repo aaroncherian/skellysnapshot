@@ -39,30 +39,22 @@ class TaskWorkerThread(threading.Thread):
         for task_name, task_info in self.tasks.items():
             if self.task_running_callback is not None:
                 self.task_running_callback(task_name)
+            
             try:
-                if self.task_running_callback is not None:
-                    self.task_running_callback(task_name)
-
+                # Run the function for each task and return a bool of if it is completed, and a result object
                 is_completed, result = task_info['function']()
                 task_info['result'] = result
 
+                # Depending on if callback functions have been passed, return the result of the function, or None
+                # if the task was not completed
                 if self.task_completed_callback:
                     self.task_completed_callback(task_name, result if is_completed else None)
-
             except ValueError as e:
                 print(f"Task {task_name} failed: {e}")
 
-            # run the function for each task and return a bool of if it is completed, and a result object
-            is_completed, result = task_info['function']()
-            task_info['result'] = result
-
-            # depending on if callback functions have been passed, return the result of the function, or None
-            # if the task was not completed
-            if self.task_completed_callback:
-                    self.task_completed_callback(task_name, result if is_completed else None)
-
         if self.all_tasks_finished_callback:
-                self.all_tasks_finished_callback(self.tasks)
+            self.all_tasks_finished_callback(self.tasks)
+
 
     def run_2d_pose_estimation(self):
         snapshot_data_2d = run_mediapipe_detection(self.snapshot)
