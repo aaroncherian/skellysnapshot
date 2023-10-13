@@ -5,6 +5,7 @@ import threading
 from skellysnapshot.constants import TaskNames
 from skellysnapshot.pose_estimation_2d.mediapipe_things.run_mediapipe import run_mediapipe_detection
 from skellysnapshot.reconstruction_3d.reconstruct_3d import process_2d_data_to_3d
+from skellysnapshot.visualize_3d.create_3d_figure import plot_frame_of_3d_skeleton
 
 
 class TaskWorkerThread(threading.Thread):
@@ -68,11 +69,20 @@ class TaskWorkerThread(threading.Thread):
         return True, snapshot_data_2d
     
     def run_3d_reconstruction(self):
-        snapshot_2d_data = self.tasks[TaskNames.TASK_RUN_MEDIAPIPE]['result']
-        if snapshot_2d_data is None:
+        snapshot_data_2d = self.tasks[TaskNames.TASK_RUN_MEDIAPIPE]['result']
+        if snapshot_data_2d is None:
             raise ValueError("2D snapshot data is missing.")
-        snapshot_data_3d = process_2d_data_to_3d(snapshot_data_2d=snapshot_2d_data, anipose_calibration_object=self.anipose_calibration_object)
+        snapshot_data_3d = process_2d_data_to_3d(snapshot_data_2d=snapshot_data_2d, anipose_calibration_object=self.anipose_calibration_object)
         return True, snapshot_data_3d
+    
+    # def visualize_3d(self):
+    #     snapshot_data_3d = self.tasks[TaskNames.TASK_RUN_3D_RECONSTRUCTION]['result']
+    #     if snapshot_data_3d is None:
+    #         raise ValueError("3D snapshot data is missing.")
+    #     skelly_plot_figure = plot_frame_of_3d_skeleton(snapshot_data_3d = snapshot_data_3d, mediapipe_skeleton = None)
+
+    #     return True, skelly_plot_figure
+
          
     
 
