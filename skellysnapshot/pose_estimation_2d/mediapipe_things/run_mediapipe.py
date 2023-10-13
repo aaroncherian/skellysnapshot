@@ -2,6 +2,7 @@ from typing import Dict
 
 import mediapipe as mp
 import numpy as np
+from rich.progress import track
 
 from skellysnapshot.pose_estimation_2d.mediapipe_things.mediapipe_config import mediapipe_parameters
 from skellysnapshot.pose_estimation_2d.mediapipe_things.mediapipe_image_processing import process_image
@@ -24,7 +25,7 @@ def run_mediapipe_detection(snapshot: Dict[str, np.ndarray]):
     static_image_mode=mediapipe_parameters['static_image_mode'],
 )
 
-    for cam_key, image in snapshot.items():
+    for cam_key, image in track(snapshot.items(), description='Mediapiping'):
         # Process the image and get the landmark data and annotated image
         landmark_data, annotated_img = process_image(image, holistic_tracker)
 

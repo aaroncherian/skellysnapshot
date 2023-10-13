@@ -33,10 +33,13 @@ class TaskWorkerThread(threading.Thread):
                 raise ValueError(f"The task '{task_name}' was not found in the available tasks {self.available_tasks.keys()}")
 
     def run(self):
+        print(f'Starting TaskWorkerThread for {self.task_queue}')
         for task_info in self.tasks.values():  # clear any previous results
             task_info['result'] = None
 
         for task_name, task_info in self.tasks.items():
+            print(f'Running task {task_name}')
+
             if self.task_running_callback is not None:
                 self.task_running_callback(task_name)
             
