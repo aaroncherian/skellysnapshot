@@ -4,11 +4,14 @@ import threading
 
 from skellysnapshot.constants import TaskNames
 from skellysnapshot.pose_estimation_2d.mediapipe_things.run_mediapipe import run_mediapipe_detection
+from skellysnapshot.reconstruction_3d.snapshot_data_3d_dataclass import process_2d_data_to_3d
+
 
 class TaskWorkerThread(threading.Thread):
-    def __init__(self, snapshot: Dict[str, np.ndarray], task_queue: list, task_running_callback=None, task_completed_callback=None, all_tasks_completed_callback=None):
+    def __init__(self, snapshot: Dict[str, np.ndarray], anipose_calibration_object,task_queue: list, task_running_callback=None, task_completed_callback=None, all_tasks_completed_callback=None):
         super().__init__()
         self.snapshot = snapshot
+        self.anipose_calibration_object = anipose_calibration_object
         self.task_queue = task_queue
         self.task_running_callback = task_running_callback
         self.task_completed_callback = task_completed_callback
@@ -34,6 +37,18 @@ class TaskWorkerThread(threading.Thread):
         for task_name, task_info in self.tasks.items():
             if self.task_running_callback is not None:
                 self.task_running_callback(task_name)
+            try:
+                if self.task_running_callback is not None:
+                    self.task_running_callback(task_name)
+
+                is_completed, result = task_info['function']()
+                task_info['result'] = result
+
+                if self.task_completed_callback:
+                    self.task_completed_callback(task_name, result if is_completed else None)
+
+            except ValueError as e:
+                print(f"Task {task_name} failed: {e}")
 
             # run the function for each task and return a bool of if it is completed, and a result object
             is_completed, result = task_info['function']()
@@ -50,6 +65,13 @@ class TaskWorkerThread(threading.Thread):
     def run_2d_pose_estimation(self):
         snapshot_data_2d = run_mediapipe_detection(self.snapshot)
         return True, snapshot_data_2d
+    
+    def run_3d_reconstruction(self):
+        if self.tasks[TaskNames.TASK_RUN_MEDIAPIPE['result']] is None:
+            raise ValueError("2D snapshot data is missing.")
+        snapshot_data_3d = process_2d_data_to_3d(snapshot_data_2d=TaskNames.TASK_RUN_MEDIAPIPE['result'], anipose_calibration_object=self.anipose_calibration_object)
+        return True, snapshot_data_3d
+         
     
 
 

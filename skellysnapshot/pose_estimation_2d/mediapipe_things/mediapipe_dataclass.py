@@ -5,11 +5,11 @@ import numpy as np
 
 @dataclass
 class MediapipeLandmarkData:
-    pose_landmarks: np.ndarray
-    face_landmarks: np.ndarray
-    left_hand_landmarks: np.ndarray
-    right_hand_landmarks: np.ndarray
-    body_hands_face_landmarks: np.ndarray
+    pose_2d_data: np.ndarray
+    face_2d_data: np.ndarray
+    left_hand_2d_data: np.ndarray
+    right_hand_2d_data: np.ndarray
+    body_hands_face_2d_data: np.ndarray
     pose_visibility: np.ndarray
 
 

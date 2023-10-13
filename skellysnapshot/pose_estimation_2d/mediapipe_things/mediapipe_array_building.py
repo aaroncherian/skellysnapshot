@@ -54,10 +54,10 @@ def convert_mediapipe_results_to_numpy_arrays(mediapipe_results, image_width, im
                                         axis=1)
 
     return MediapipeLandmarkData(
-        pose_landmarks=pose_landmarks,
-        face_landmarks=face_landmarks,
-        left_hand_landmarks=left_hand_landmarks,
-        right_hand_landmarks=right_hand_landmarks,
-        body_hands_face_landmarks=combined_landmarks,
+        pose_2d_data=pose_landmarks,
+        face_2d_data=face_landmarks,
+        left_hand_2d_data=left_hand_landmarks,
+        right_hand_2d_data=right_hand_landmarks,
+        body_hands_face_2d_data=combined_landmarks,
         pose_visibility=pose_visibility
     )

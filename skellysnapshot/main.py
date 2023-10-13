@@ -14,11 +14,12 @@ def main(snapshot, calibration_toml_path):
     anipose_calibration_object = load_anipose_calibration_toml_from_path(calibration_toml_path)
 
     task_worker_thread = TaskWorkerThread(snapshot=snapshot,
-                                          task_queue=[TaskNames.TASK_RUN_MEDIAPIPE],
-                                          task_running_callback=None,
-                                          task_completed_callback=None,
-                                          all_tasks_completed_callback=handle_all_tasks_completed)
-    
+                                        anipose_calibration_object=anipose_calibration_object,
+                                        task_queue=[TaskNames.TASK_RUN_MEDIAPIPE],
+                                        task_running_callback=None,
+                                        task_completed_callback=None,
+                                        all_tasks_completed_callback=handle_all_tasks_completed)
+
     task_worker_thread.start()
 
 
