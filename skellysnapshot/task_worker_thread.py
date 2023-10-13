@@ -68,9 +68,10 @@ class TaskWorkerThread(threading.Thread):
         return True, snapshot_data_2d
     
     def run_3d_reconstruction(self):
-        if self.tasks[TaskNames.TASK_RUN_MEDIAPIPE['result']] is None:
+        snapshot_2d_data = self.tasks[TaskNames.TASK_RUN_MEDIAPIPE]['result']
+        if snapshot_2d_data is None:
             raise ValueError("2D snapshot data is missing.")
-        snapshot_data_3d = process_2d_data_to_3d(snapshot_data_2d=TaskNames.TASK_RUN_MEDIAPIPE['result'], anipose_calibration_object=self.anipose_calibration_object)
+        snapshot_data_3d = process_2d_data_to_3d(snapshot_data_2d=snapshot_2d_data, anipose_calibration_object=self.anipose_calibration_object)
         return True, snapshot_data_3d
          
     

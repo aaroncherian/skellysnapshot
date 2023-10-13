@@ -1,19 +1,19 @@
 import numpy as np
 
-from skellysnapshot.pose_estimation_2d.mediapipe_things.mediapipe_dataclass import MediapipeLandmarkData
+from skellysnapshot.pose_estimation_2d.snapshot_data_2d_dataclass import SnapshotData2d
 from skellysnapshot.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3d
 
 
-def process_2d_data_to_3d(snapshot_data_2d: MediapipeLandmarkData, anipose_calibration_object):
+def process_2d_data_to_3d(snapshot_data_2d: SnapshotData2d, anipose_calibration_object):
     # Load calibration object
-    body_hands_face_2d_data = snapshot_data_2d.body_hands_face_2d_data
+    body_hands_face_2d_data = snapshot_data_2d.data_2d_camera_frame_marker_dimension
     # 3D reconstruction
-    spatial_data3d, reprojection_error_data3d = triangulate_3d_data(
+    snapshot_data_3d = triangulate_3d_data(
         anipose_calibration_object=anipose_calibration_object,
         mediapipe_2d_data=body_hands_face_2d_data,
     )
 
-    return spatial_data3d, reprojection_error_data3d
+    return snapshot_data_3d
 
 
 def triangulate_3d_data(
@@ -39,7 +39,7 @@ def triangulate_3d_data(
 
     # Filter data with high reprojection error
     return SnapshotData3d(
-        body_hands_face_3d_data=spatial_data3d_numFrames_numTrackedPoints_XYZ,
+        data_3d_camera_frame_marker_dimension=spatial_data3d_numFrames_numTrackedPoints_XYZ,
         reprojection_error_3d=reprojection_error_data3d_numFrames_numTrackedPoints, 
     )
 

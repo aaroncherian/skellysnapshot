@@ -5,5 +5,5 @@ import numpy as np
 
 @dataclass
 class SnapshotData3d:
-    body_hands_face_3d_data: np.ndarray
+    data_3d_camera_frame_marker_dimension: np.ndarray
     reprojection_error_3d:np.ndarray
