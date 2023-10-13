@@ -2,9 +2,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from skellysnapshot.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3d
+from skellysnapshot.visualize_3d.mediapipe_bone_connections import build_mediapipe_skeleton
 
 
-def plot_frame_of_3d_skeleton(snapshot_data_3d:SnapshotData3d, mediapipe_skeleton):
+def plot_frame_of_3d_skeleton(snapshot_data_3d:SnapshotData3d):
     skeleton_3d_data = snapshot_data_3d.data_3d_camera_frame_marker_dimension
 
     fig = plt.figure()
@@ -24,13 +25,14 @@ def plot_frame_of_3d_skeleton(snapshot_data_3d:SnapshotData3d, mediapipe_skeleto
     # Plot the points
     ax.scatter(skel_x, skel_y, skel_z)
 
+    bone_connections = build_mediapipe_skeleton(skeleton_3d_data)
+
     # Plot the bones
-    # this_frame_skeleton_data = mediapipe_skeleton[frame_number]
-    # for connection in this_frame_skeleton_data.keys():
-    #     line_start_point = this_frame_skeleton_data[connection][0]
-    #     line_end_point = this_frame_skeleton_data[connection][1]
-    #     bone_x, bone_y, bone_z = [line_start_point[0], line_end_point[0]], [line_start_point[1], line_end_point[1]], [line_start_point[2], line_end_point[2]]
-    #     ax.plot(bone_x, bone_y, bone_z)
+    for connection in bone_connections.keys():
+        line_start_point = bone_connections[connection][0]
+        line_end_point = bone_connections[connection][1]
+        bone_x, bone_y, bone_z = [line_start_point[0], line_end_point[0]], [line_start_point[1], line_end_point[1]], [line_start_point[2], line_end_point[2]]
+        ax.plot(bone_x, bone_y, bone_z)
 
     # Set axis limits
     ax.set_xlim([mx_skel - skel_3d_range, mx_skel + skel_3d_range])

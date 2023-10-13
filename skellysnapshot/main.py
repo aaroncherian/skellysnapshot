@@ -31,7 +31,7 @@ class MyClass:
         task_worker_thread.start()
         task_worker_thread.join()  # Wait for the thread to finish
 
-        plot_frame_of_3d_skeleton(snapshot_data_3d=self.snapshot3d_data, mediapipe_skeleton=[])
+        plot_frame_of_3d_skeleton(snapshot_data_3d=self.snapshot3d_data)
 
 
 def main(snapshot, calibration_toml_path):
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     from pathlib import Path
     import cv2
 
-    path_to_snapshot_images_folder = Path(r'C:\Users\aaron\Documents\HumonLab\SkellySnapshot\test_images')
+    path_to_snapshot_images_folder = Path(r'C:\Users\aaron\Documents\HumonLab\SkellySnapshot\test_2')
     calibration_toml_path = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_12_49_06_calibration_3\sesh_2023-05-17_12_49_06_calibration_3_camera_calibration.toml")
 
 
