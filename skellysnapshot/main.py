@@ -7,7 +7,9 @@ def main(snapshot, calibration_toml_path):
 
     def handle_all_tasks_completed(task_results:dict):
         snapshot2d_data = task_results[TaskNames.TASK_RUN_MEDIAPIPE]['result']
+        snapshot3d_data = task_results[TaskNames.TASK_RUN_3D_RECONSTRUCTION]['result']
         print(snapshot2d_data.data_2d_camera_frame_marker_dimension.shape)
+        print(snapshot3d_data.data_3d_camera_frame_marker_dimension.shape)
 
 
     # Load the calibration object
@@ -15,7 +17,7 @@ def main(snapshot, calibration_toml_path):
 
     task_worker_thread = TaskWorkerThread(snapshot=snapshot,
                                         anipose_calibration_object=anipose_calibration_object,
-                                        task_queue=[TaskNames.TASK_RUN_MEDIAPIPE],
+                                        task_queue=[TaskNames.TASK_RUN_MEDIAPIPE, TaskNames.TASK_RUN_3D_RECONSTRUCTION],
                                         task_running_callback=None,
                                         task_completed_callback=None,
                                         all_tasks_completed_callback=handle_all_tasks_completed)

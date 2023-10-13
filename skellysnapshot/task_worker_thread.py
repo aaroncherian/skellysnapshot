@@ -4,7 +4,7 @@ import threading
 
 from skellysnapshot.constants import TaskNames
 from skellysnapshot.pose_estimation_2d.mediapipe_things.run_mediapipe import run_mediapipe_detection
-from skellysnapshot.reconstruction_3d.snapshot_data_3d_dataclass import process_2d_data_to_3d
+from skellysnapshot.reconstruction_3d.reconstruct_3d import process_2d_data_to_3d
 
 
 class TaskWorkerThread(threading.Thread):
@@ -19,6 +19,7 @@ class TaskWorkerThread(threading.Thread):
 
         self.available_tasks = {
             TaskNames.TASK_RUN_MEDIAPIPE: self.run_2d_pose_estimation,
+            TaskNames.TASK_RUN_3D_RECONSTRUCTION: self.run_3d_reconstruction,
         }
 
         self.tasks = {task_name: {'function': self.available_tasks[task_name], 'result': None} for task_name in

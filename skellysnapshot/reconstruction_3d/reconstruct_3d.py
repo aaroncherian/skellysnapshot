@@ -1,7 +1,7 @@
 import numpy as np
 
 from skellysnapshot.pose_estimation_2d.mediapipe_things.mediapipe_dataclass import MediapipeLandmarkData
-from skellysnapshot.reconstruction_3d.reconstructed_3d_dataclass import SnapshotData3d
+from skellysnapshot.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3d
 
 
 def process_2d_data_to_3d(snapshot_data_2d: MediapipeLandmarkData, anipose_calibration_object):
