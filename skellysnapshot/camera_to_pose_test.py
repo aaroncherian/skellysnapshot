@@ -43,7 +43,8 @@ def add_snapshot_tab(tab_widget, snapshot_images):
 
     # Add the layout to the tab
     new_tab.setLayout(layout)
-    tab_widget.addTab(new_tab, f"Snapshot {tab_widget.count() + 1}")
+    new_tab_index = tab_widget.addTab(new_tab, f"Snapshot {tab_widget.count() + 1}")
+    tab_widget.setCurrentIndex(new_tab_index)
 
 
 class MyClass:
