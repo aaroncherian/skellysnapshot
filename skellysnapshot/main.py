@@ -5,20 +5,24 @@ from skellysnapshot.visualize_3d.create_3d_figure import plot_frame_of_3d_skelet
 
 import matplotlib.pyplot as plt
 
+from skellysnapshot.camera_to_pose_test import add_snapshot_tab, initialize_gui
+import sys
+
 class MyClass:
     def __init__(self):
         self.snapshot3d_data = None
 
     def handle_all_tasks_completed(self, task_results: dict):
-        snapshot2d_data = task_results[TaskNames.TASK_RUN_MEDIAPIPE]['result']
+        self.snapshot2d_data = task_results[TaskNames.TASK_RUN_MEDIAPIPE]['result']
         self.snapshot3d_data = task_results[TaskNames.TASK_RUN_3D_RECONSTRUCTION]['result']
-        print(snapshot2d_data.data_2d_camera_frame_marker_dimension.shape)
-        print(self.snapshot3d_data.data_3d_camera_frame_marker_dimension.shape)
+        # print(snapshot2d_data.data_2d_camera_frame_marker_dimension.shape)
+
+        # print(self.snapshot3d_data.data_3d_camera_frame_marker_dimension.shape)
 
     def run(self, snapshot, calibration_toml_path):
         # Load the calibration object
         anipose_calibration_object = load_anipose_calibration_toml_from_path(calibration_toml_path)
-
+        # anipose_calibration_object = None
         task_worker_thread = TaskWorkerThread(
             snapshot=snapshot,
             anipose_calibration_object=anipose_calibration_object,
@@ -31,19 +35,27 @@ class MyClass:
         task_worker_thread.start()
         task_worker_thread.join()  # Wait for the thread to finish
 
-        plot_frame_of_3d_skeleton(snapshot_data_3d=self.snapshot3d_data)
+        # plot_frame_of_3d_skeleton(snapshot_data_3d=self.snapshot3d_data)
 
 
-def main(snapshot, calibration_toml_path):
+
+
+
+def main(snapshot, path_to_calibration_toml, tab_widget):
     my_class = MyClass()
-    my_class.run(snapshot, calibration_toml_path)
+    my_class.run(snapshot, path_to_calibration_toml)
+
+        # Assume snapshot_data is available here, replace with actual data
+    snapshot_data = my_class.snapshot2d_data.annotated_images
+    snapshot_data_3d = my_class.snapshot3d_data
+    add_snapshot_tab(tab_widget, snapshot_data, snapshot_data_3d)
 
 if __name__ == '__main__':
     from pathlib import Path
     import cv2
 
     path_to_snapshot_images_folder = Path(r'C:\Users\aaron\Documents\HumonLab\SkellySnapshot\test_2')
-    calibration_toml_path = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_12_49_06_calibration_3\sesh_2023-05-17_12_49_06_calibration_3_camera_calibration.toml")
+    path_to_calibration_toml = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_12_49_06_calibration_3\sesh_2023-05-17_12_49_06_calibration_3_camera_calibration.toml")
 
 
     # Initialize an empty dictionary to hold the camera images
@@ -61,4 +73,10 @@ if __name__ == '__main__':
             # Add the image to the dictionary
             snapshot[key] = image
 
-    main(snapshot, calibration_toml_path)
+    
+    app, window, tab_widget = initialize_gui()
+    main(snapshot, path_to_calibration_toml, tab_widget)
+
+    sys.exit(app.exec())
+
+
