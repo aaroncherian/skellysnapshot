@@ -50,6 +50,9 @@ def main(snapshot, path_to_calibration_toml, tab_widget):
     snapshot_data_3d = my_class.snapshot3d_data
     add_snapshot_tab(tab_widget, snapshot_data, snapshot_data_3d)
 
+
+
+
 if __name__ == '__main__':
     from pathlib import Path
     import cv2
