@@ -31,8 +31,14 @@ class ClickableImageLabel(QLabel):
 
         layout.addWidget(graphics_view)
 
+        # Set the dialog size to be slightly larger than the image
+        img_width = self.original_pixmap.width()
+        img_height = self.original_pixmap.height()
+        zoom_dialog.resize(img_width + 10, img_height + 10)  # Add a small margin
+
         zoom_dialog.setLayout(layout)
         zoom_dialog.exec()
+
 
 
 class ResultsViewWidget(QWidget):
