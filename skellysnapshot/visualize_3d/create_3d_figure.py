@@ -5,11 +5,8 @@ from skellysnapshot.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3
 from skellysnapshot.visualize_3d.mediapipe_bone_connections import build_mediapipe_skeleton
 
 
-def plot_frame_of_3d_skeleton(snapshot_data_3d:SnapshotData3d):
+def plot_frame_of_3d_skeleton(ax,snapshot_data_3d:SnapshotData3d):
     skeleton_3d_data = snapshot_data_3d.data_3d_camera_frame_marker_dimension
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
 
     # Calculate mean coordinates for centering the plot
     mx_skel = np.nanmean(skeleton_3d_data[:, 0:33, 0])
@@ -39,4 +36,4 @@ def plot_frame_of_3d_skeleton(snapshot_data_3d:SnapshotData3d):
     ax.set_ylim([my_skel - skel_3d_range, my_skel + skel_3d_range])
     ax.set_zlim([mz_skel - skel_3d_range, mz_skel + skel_3d_range])
 
-    plt.show()
+    # plt.show()
