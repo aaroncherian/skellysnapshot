@@ -87,11 +87,16 @@ def my_snapshot_callback(snapshot, tab_widget):
     add_snapshot_tab(tab_widget, snapshot_data)
 
 if __name__ == "__main__":
+
+    settings_dict = {
+        'timer':4
+    }
+
     app, window, tab_widget = initialize_gui()
 
     def snapshot_callback_wrapper(snapshot):
         my_snapshot_callback(snapshot, tab_widget)
 
-    main(snapshot_callback=snapshot_callback_wrapper)
+    main(snapshot_callback=snapshot_callback_wrapper,settings_dict=settings_dict)
 
     sys.exit(app.exec())
