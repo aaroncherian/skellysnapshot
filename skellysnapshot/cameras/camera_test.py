@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
+import time
+from collections import deque
 
+event_queue = deque()
 def capture_frames(capture_devices):
     frames = {}
     for i, cap in enumerate(capture_devices):
@@ -23,33 +26,38 @@ def show_in_one_window(frames, window_name='All Webcams'):
     # Show in one OpenCV window
     cv2.imshow(window_name, concatenated_frame)
 
-def main(snapshot_callback=None):
-    # Initialize webcams
-    num_webcams = 2  # Change based on your setup
+def main(snapshot_callback, settings_dict:dict):
+    num_webcams = 2
     capture_devices = [cv2.VideoCapture(i) for i in range(num_webcams)]
 
     try:
         while True:
-            # Capture frames
-            snapshot = capture_frames(capture_devices)
+            # Check event queue
+            current_time = time.time()
+            if event_queue and event_queue[0]['time'] <= current_time:
+                event = event_queue.popleft()
+                if event['type'] == 'snapshot':
+                    print("Snapshot captured")
+                    snapshot = capture_frames(capture_devices)
+                    if snapshot_callback is not None:
+                        snapshot_callback(snapshot)
 
-            # Show all in one window
-            show_in_one_window(snapshot)
+            # Capture and show frames
+            frames = capture_frames(capture_devices)
+            show_in_one_window(frames)
 
-            # Capture a snapshot if 's' key is pressed
+            # Check for 's' key press
             key = cv2.waitKey(1) & 0xFF
-
             if key == ord('s'):
-                print("Snapshot captured")
-                if snapshot_callback is not None:
-                    snapshot_callback(snapshot)
+                print("Preparing to capture snapshot...")
+                event_time = current_time + settings_dict['timer']  # 3 seconds into the future
+                event = {'type': 'snapshot', 'time': event_time}
+                event_queue.append(event)
 
             if key == ord('q'):
                 break
 
-
     finally:
-        # Release capture devices and close windows
         for cap in capture_devices:
             cap.release()
         cv2.destroyAllWindows()
@@ -59,4 +67,7 @@ def snapshot_callback_test(snapshot):
     print (snapshot.keys())
 
 if __name__ == "__main__":
-    main(snapshot_callback=snapshot_callback_test)
+    settings_dict = {
+        'timer':0
+    }
+    main(snapshot_callback=snapshot_callback_test, settings_dict=settings_dict)
