@@ -8,6 +8,10 @@ from skellysnapshot.visualize_3d.mediapipe_bone_connections import build_mediapi
 def plot_frame_of_3d_skeleton(ax,snapshot_data_3d:SnapshotData3d):
     skeleton_3d_data = snapshot_data_3d.data_3d_camera_frame_marker_dimension
 
+    if skeleton_3d_data.size == 0 or np.all(np.isnan(skeleton_3d_data)):
+        print("No valid skeleton data for plotting.")
+        return
+
     # Calculate mean coordinates for centering the plot
     mx_skel = np.nanmean(skeleton_3d_data[:, 0:33, 0])
     my_skel = np.nanmean(skeleton_3d_data[:, 0:33, 1])
