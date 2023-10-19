@@ -2,7 +2,7 @@
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QMainWindow, QApplication, QTabWidget, QWidget, QVBoxLayout
 
-from skellysnapshot.gui.widgets.main_menu import MainMenu
+from skellysnapshot.gui.widgets.camera_menu import CameraMenu
 from skellysnapshot.gui.widgets.results_widget import ResultsViewWidget
 from skellysnapshot.main import MyClass
 from skellysnapshot.calibration.anipose_object_loader import load_anipose_calibration_toml_from_path
@@ -21,8 +21,8 @@ class SnapshotGUI(QWidget):
         self.setWindowTitle("Snapshot GUI")
         self.tab_widget = QTabWidget()
 
-        self.main_menu_tab = MainMenu()
-        self.tab_widget.addTab(self.main_menu_tab, "Main Menu")
+        self.main_menu_tab = CameraMenu()
+        self.tab_widget.addTab(self.main_menu_tab, "Cameras")
 
         layout.addWidget(self.tab_widget) 
         self.resize(1256, 1029)
