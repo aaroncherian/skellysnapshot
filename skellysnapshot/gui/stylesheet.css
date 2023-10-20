@@ -2,7 +2,7 @@
 QLabel {
     font-size: 14px;
     font-weight: bold;
-    /* border: 1px solid red */
+    border: 1px solid red
 }
 
 
