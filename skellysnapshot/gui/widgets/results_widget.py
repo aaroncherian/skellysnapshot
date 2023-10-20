@@ -42,7 +42,7 @@ class ClickableImageLabel(QLabel):
 
 
 class ResultsViewWidget(QWidget):
-    def __init__(self, snapshot_images, snapshot_data_3d):
+    def __init__(self, snapshot_data_2d, snapshot_data_3d):
         super().__init__()
         layout = QHBoxLayout()
 
@@ -51,8 +51,8 @@ class ResultsViewWidget(QWidget):
 
         row = 0
         col = 0
-
-        for name, image in snapshot_images.items():
+        
+        for name, image in snapshot_data_2d.annotated_images.items():
             # Convert the image to be compatible with PyQt6
             height, width, channel = image.shape
             bytes_per_line = 3 * width

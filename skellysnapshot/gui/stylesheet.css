@@ -1,0 +1,23 @@
+/* Style for QLabel */
+QLabel {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Style for Welcome label */
+QLabel#WelcomeLabel {
+    font-size: 36px;
+}
+
+/* Style for QGroupBox */
+QGroupBox {
+    font-size: 15px;
+    font-weight: bold;
+    border: 1px solid #00e7a2;
+    border-radius: 10px;
+    margin-top: 10px;
+    padding: 20px;
+    background-color: rgba(97, 95, 95, 0.5);  /* Background color */
+}
+
+

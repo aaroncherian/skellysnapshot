@@ -1,7 +1,8 @@
 
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtWidgets import QMainWindow, QApplication, QTabWidget, QWidget, QVBoxLayout
 
+from skellysnapshot.gui.widgets.main_menu import MainMenu
 from skellysnapshot.gui.widgets.camera_menu import CameraMenu
 from skellysnapshot.gui.widgets.results_widget import ResultsViewWidget
 from skellysnapshot.main import MyClass
@@ -9,37 +10,37 @@ from skellysnapshot.calibration.anipose_object_loader import load_anipose_calibr
 from skellysnapshot.task_worker_thread import TaskWorkerThread
 from skellysnapshot.constants import TaskNames
 
-class SnapshotGUI(QWidget):
-    new_results_ready = pyqtSignal(object,object)
+
+class LayoutManager:
     def __init__(self):
-        super().__init__()
-
-        layout = QVBoxLayout()
-
-        self.anipose_calibration_object = None
-
-        self.setWindowTitle("Snapshot GUI")
         self.tab_widget = QTabWidget()
 
-        self.main_menu_tab = CameraMenu()
-        self.tab_widget.addTab(self.main_menu_tab, "Cameras")
+    def initialize_layout(self):
+        self.main_menu = MainMenu()
+        self.tab_widget.addTab(self.main_menu, "Main Menu")
 
-        layout.addWidget(self.tab_widget) 
-        self.resize(1256, 1029)
+        self.camera_tab = CameraMenu()
+        self.tab_widget.addTab(self.camera_tab, "Cameras")
 
-        self.setLayout(layout)
+    def add_results_tab(self, snapshot_2d_data, snapshot_3d_data):
+        results_tab = ResultsViewWidget(snapshot_2d_data, snapshot_3d_data)
+        new_tab_index = self.tab_widget.addTab(results_tab, f"Snapshot {self.tab_widget.count() + 1}")
+        self.tab_widget.setCurrentIndex(new_tab_index)
 
-        self.connect_signals_to_slots()
-    
-    def load_calibration_object(self, path_to_calibration_toml):
-        self.anipose_calibration_object = load_anipose_calibration_toml_from_path(path_to_calibration_toml)
+class TaskManager(QObject):
+    new_results_ready = pyqtSignal(object,object)
+    def __init__(self, anipose_calibration_object=None):
+        super().__init__()
+        self.anipose_calibration_object = anipose_calibration_object
 
+    def set_anipose_calibration_object(self, anipose_calibration_object):
+        self.anipose_calibration_object = anipose_calibration_object
 
-    def process_snapshot(self,snapshot):
+    def process_snapshot(self, snapshot):
         if self.anipose_calibration_object is None:
             print("Calibration object not loaded.")
             return
-        # anipose_calibration_object = None
+
         task_worker_thread = TaskWorkerThread(
             snapshot=snapshot,
             anipose_calibration_object=self.anipose_calibration_object,
@@ -48,30 +49,47 @@ class SnapshotGUI(QWidget):
             task_completed_callback=None,
             all_tasks_completed_callback=self.handle_all_tasks_completed
         )
-
         task_worker_thread.start()
-        # task_worker_thread.join()  # Wait for the thread to finish
+
     
-    def connect_signals_to_slots(self):
-        self.main_menu_tab.snapshot_captured.connect(self.process_snapshot)
-        self.new_results_ready.connect(self.add_results_tab)
-        self.main_menu_tab.calibration_widget.calibration_loaded.connect(self.load_calibration_object)
-
-
     def handle_all_tasks_completed(self, task_results: dict):
         self.snapshot2d_data = task_results[TaskNames.TASK_RUN_MEDIAPIPE]['result']
         self.snapshot3d_data = task_results[TaskNames.TASK_RUN_3D_RECONSTRUCTION]['result']
         self.new_results_ready.emit(self.snapshot2d_data,self.snapshot3d_data)
+
+
+class SnapshotGUI(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.layout_manager = LayoutManager()
+        self.task_manager = TaskManager()
+
+        layout = QVBoxLayout()
+        self.layout_manager.initialize_layout()
+        layout.addWidget(self.layout_manager.tab_widget)
+        self.setLayout(layout)
+
+        self.connect_signals_to_slots()
+    
+    def load_calibration_object(self, path_to_calibration_toml):
+        self.anipose_calibration_object = load_anipose_calibration_toml_from_path(path_to_calibration_toml)
+        self.task_manager.set_anipose_calibration_object(self.anipose_calibration_object)
+        # task_worker_thread.join()  # Wait for the thread to finish
+    
+    def connect_signals_to_slots(self):
+        self.layout_manager.camera_tab.snapshot_captured.connect(self.on_snapshot_captured_signal)
+        self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
+        self.layout_manager.camera_tab.calibration_widget.calibration_loaded.connect(self.load_calibration_object)
+
+    def on_snapshot_captured_signal(self, snapshot):
+        self.task_manager.process_snapshot(snapshot)
+
+    def on_results_ready_signal(self, snapshot2d_data, snapshot3d_data):
+        self.layout_manager.add_results_tab(snapshot2d_data, snapshot3d_data)
+
+
         # self.add_results_tab(self.snapshot2d_data.annotated_images, self.snapshot3d_data)
-
-    def add_results_tab(self, snapshot_2d_data, snapshot_3d_data):
-        snapshot_images = snapshot_2d_data.annotated_images
-        results_tab = ResultsViewWidget(snapshot_images, snapshot_3d_data)
-        new_tab_index = self.tab_widget.addTab(results_tab, f"Snapshot {self.tab_widget.count() + 1}")
-        self.tab_widget.setCurrentIndex(new_tab_index)
-
-        
-
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -107,8 +125,14 @@ def run_analysis(snapshot, path_to_calibration_toml):
     return snapshot_images, snapshot_data_3d
 
 def runGUI():
+
+    with open('skellysnapshot\gui\stylesheet.css', 'r') as f:
+        stylesheet = f.read()
+
     app = QApplication([])
     win = MainWindow()
+    app.setStyle('Fusion')
+    app.setStyleSheet(stylesheet)
     win.show()
     app.exec()
 
@@ -162,7 +186,6 @@ def runGUI():
 
 
 #     app.exec()
-
 
 
 
