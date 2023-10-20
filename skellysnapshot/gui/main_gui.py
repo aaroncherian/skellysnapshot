@@ -11,6 +11,19 @@ from skellysnapshot.calibration.anipose_object_loader import load_anipose_calibr
 from skellysnapshot.task_worker_thread import TaskWorkerThread
 from skellysnapshot.constants import TaskNames
 
+class EventBus:
+    def __init__(self):
+        self.subscribers = {}
+
+    def subscribe(self, event_type, callback):
+        if event_type not in self.subscribers:
+            self.subscribers[event_type] = []
+        self.subscribers[event_type].append(callback)
+
+    def publish(self, event_type, data):
+        if event_type in self.subscribers:
+            for callback in self.subscribers[event_type]:
+                callback(data)
 
 class LayoutManager:
     def __init__(self):
@@ -39,7 +52,7 @@ class TaskManager(QObject):
 
     def set_anipose_calibration_object(self, anipose_calibration_object):
         self.anipose_calibration_object = anipose_calibration_object
-        print('Calibration loaded into task manager')
+        print(f'Calibration {self.anipose_calibration_object} loaded into task manager')
 
     def process_snapshot(self, snapshot):
         if self.anipose_calibration_object is None:
@@ -67,6 +80,8 @@ class SnapshotGUI(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.event_bus = EventBus()
+
         self.main_menu = MainMenu()
         self.camera_menu = CameraMenu()
         self.calibration_menu = CalibrationMenu()
@@ -78,24 +93,38 @@ class SnapshotGUI(QWidget):
         self.layout_manager.register_tab(self.calibration_menu, "Calibration")
         
         self.task_manager = TaskManager()
-        self.calibration_manager = CalibrationManager()
+        self.calibration_manager = CalibrationManager(self.event_bus)
 
         layout = QVBoxLayout()
         # self.layout_manager.initialize_layout()
         layout.addWidget(self.layout_manager.tab_widget)
         self.setLayout(layout)
 
+
+        self.connect_signals_to_event_bus()
+
         self.connect_signals_to_slots()
     
+    def connect_signals_to_event_bus(self):
+        calibration_subscribers = [
+            self.task_manager.set_anipose_calibration_object,
+            lambda _: self.camera_menu.enable_capture_button(),
+            lambda _: self.main_menu.update_calibration_status(True)
+        ]
+        
+        for subscriber in calibration_subscribers:
+            self.event_bus.subscribe('calibration_object_created', subscriber)
+
+
     
     def connect_signals_to_slots(self):
         
         self.calibration_menu.calibration_toml_path_loaded.connect(self.calibration_manager.load_calibration_from_file)
-        self.calibration_manager.calibration_object_created.connect(self.task_manager.set_anipose_calibration_object)
-        self.calibration_manager.calibration_object_created.connect(self.camera_menu.enable_capture_button)
+        # self.calibration_manager.calibration_object_created.connect(self.task_manager.set_anipose_calibration_object)
+        # self.calibration_manager.calibration_object_created.connect(self.camera_menu.enable_capture_button)
         self.camera_menu.snapshot_captured.connect(self.on_snapshot_captured_signal)
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
-        self.calibration_manager.calibration_object_created.connect(lambda: self.main_menu.update_calibration_status(True))
+        # self.calibration_manager.calibration_object_created.connect(lambda: self.main_menu.update_calibration_status(True))
 
         # self.camera_tab.calibration_widget.calibration_loaded.connect(self.load_calibration_object)
 
