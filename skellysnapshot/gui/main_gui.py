@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import QMainWindow, QApplication, QTabWidget, QWidget, QVBo
 from skellysnapshot.gui.widgets.main_menu import MainMenu
 from skellysnapshot.gui.widgets.camera_menu import CameraMenu
 from skellysnapshot.gui.widgets.results_widget import ResultsViewWidget
+from skellysnapshot.gui.widgets.calibration_menu import CalibrationMenu, CalibrationManager
 from skellysnapshot.main import MyClass
 from skellysnapshot.calibration.anipose_object_loader import load_anipose_calibration_toml_from_path
 from skellysnapshot.task_worker_thread import TaskWorkerThread
@@ -38,6 +39,7 @@ class TaskManager(QObject):
 
     def set_anipose_calibration_object(self, anipose_calibration_object):
         self.anipose_calibration_object = anipose_calibration_object
+        print('Calibration loaded into task manager')
 
     def process_snapshot(self, snapshot):
         if self.anipose_calibration_object is None:
@@ -66,16 +68,17 @@ class SnapshotGUI(QWidget):
         super().__init__()
 
         self.main_menu = MainMenu()
-        self.camera_tab = CameraMenu()
-        # self.calibration_tab = CalibrationTab()
+        self.camera_menu = CameraMenu()
+        self.calibration_menu = CalibrationMenu()
 
         self.layout_manager = LayoutManager()
         
         self.layout_manager.register_tab(self.main_menu, "Main Menu")
-        self.layout_manager.register_tab(self.camera_tab, "Cameras")
-        # self.layout_manager.register_tab(self.calibration_tab, "Calibration")
+        self.layout_manager.register_tab(self.camera_menu, "Cameras")
+        self.layout_manager.register_tab(self.calibration_menu, "Calibration")
         
         self.task_manager = TaskManager()
+        self.calibration_manager = CalibrationManager()
 
         layout = QVBoxLayout()
         # self.layout_manager.initialize_layout()
@@ -84,15 +87,19 @@ class SnapshotGUI(QWidget):
 
         self.connect_signals_to_slots()
     
-    def load_calibration_object(self, path_to_calibration_toml):
-        self.anipose_calibration_object = load_anipose_calibration_toml_from_path(path_to_calibration_toml)
-        self.task_manager.set_anipose_calibration_object(self.anipose_calibration_object)
-        # task_worker_thread.join()  # Wait for the thread to finish
+    # def load_calibration_object(self, path_to_calibration_toml):
+    #     self.anipose_calibration_object = load_anipose_calibration_toml_from_path(path_to_calibration_toml)
+    #     self.task_manager.set_anipose_calibration_object(self.anipose_calibration_object)
+    #     # task_worker_thread.join()  # Wait for the thread to finish
     
     def connect_signals_to_slots(self):
-        self.camera_tab.snapshot_captured.connect(self.on_snapshot_captured_signal)
+        
+        self.calibration_menu.calibration_toml_path_loaded.connect(self.calibration_manager.load_calibration_from_file)
+        self.calibration_manager.calibration_object_created.connect(self.task_manager.set_anipose_calibration_object)
+        self.calibration_manager.calibration_object_created.connect(self.camera_menu.enable_capture_button)
+        self.camera_menu.snapshot_captured.connect(self.on_snapshot_captured_signal)
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
-        self.camera_tab.calibration_widget.calibration_loaded.connect(self.load_calibration_object)
+        # self.camera_tab.calibration_widget.calibration_loaded.connect(self.load_calibration_object)
 
     def on_snapshot_captured_signal(self, snapshot):
         self.task_manager.process_snapshot(snapshot)

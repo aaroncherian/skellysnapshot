@@ -4,29 +4,29 @@ from PyQt6.QtWidgets import QLabel, QWidget, QVBoxLayout, QApplication, QPushBut
 import cv2
 import sys
 
-class CalibrationWidget(QWidget):
-    calibration_loaded = pyqtSignal(str)
+# class CalibrationWidget(QWidget):
+#     calibration_loaded = pyqtSignal(str)
 
-    def __init__(self):
-        super().__init__()
-        layout = QVBoxLayout()
+#     def __init__(self):
+#         super().__init__()
+#         layout = QVBoxLayout()
 
-        self.label = QLabel("Calibration File: Not Loaded")
-        layout.addWidget(self.label)
+#         self.label = QLabel("Calibration File: Not Loaded")
+#         layout.addWidget(self.label)
 
-        self.button = QPushButton("Load Calibration File")
-        self.button.clicked.connect(self.load_calibration_file)
-        layout.addWidget(self.button)
-
-
-        self.setLayout(layout)
+#         self.button = QPushButton("Load Calibration File")
+#         self.button.clicked.connect(self.load_calibration_file)
+#         layout.addWidget(self.button)
 
 
-    def load_calibration_file(self):
-        filePath, _ = QFileDialog.getOpenFileName(self, "Load Calibration File", "", "TOML Files (*.toml);;All Files (*)")
-        if filePath:
-            self.label.setText(f"Calibration File: {filePath}")
-            self.calibration_loaded.emit(filePath)
+#         self.setLayout(layout)
+
+
+#     def load_calibration_file(self):
+#         filePath, _ = QFileDialog.getOpenFileName(self, "Load Calibration File", "", "TOML Files (*.toml);;All Files (*)")
+#         if filePath:
+#             self.label.setText(f"Calibration File: {filePath}")
+#             self.calibration_loaded.emit(filePath)
 
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(QImage, int)
@@ -71,9 +71,9 @@ class CameraMenu(QWidget):
             self.threads.append(thread)  # Keep the reference
 
         # Add CalibrationWidget
-        self.calibration_widget = CalibrationWidget()
-        self.calibration_widget.calibration_loaded.connect(self.enable_capture_button)
-        layout.addWidget(self.calibration_widget)
+        # self.calibration_widget = CalibrationWidget()
+        # self.calibration_widget.calibration_loaded.connect(self.enable_capture_button)
+        # layout.addWidget(self.calibration_widget)
 
         # Add capture button
         self.capture_button = QPushButton("Capture Snapshot")
@@ -83,9 +83,9 @@ class CameraMenu(QWidget):
 
         self.setLayout(layout)
 
-    def enable_capture_button(self, filePath):
+    def enable_capture_button(self):
         self.capture_button.setEnabled(True)
-        self.calibration_loaded.emit(filePath)  # Forward the signal if needed
+        # self.calibration_loaded.emit(filePath)  # Forward the signal if needed
 
     def update_image(self, qt_image, camera_index):
         self.labels[camera_index].setPixmap(QPixmap.fromImage(qt_image))
