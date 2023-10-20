@@ -31,7 +31,7 @@ QGroupBox {
     border-radius: 10px;
     margin-top: 10px;
     padding: 10px;
-    background-color: rgba(40, 40, 40, 0.5);  /* Background color */
+    background-color: rgb(40, 40, 40);  /* Background color */
 }
 
 QGroupBox:hover {
