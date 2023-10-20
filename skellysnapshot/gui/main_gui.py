@@ -29,8 +29,11 @@ class LayoutManager:
     def __init__(self):
         self.tab_widget = QTabWidget()
     
+        self.tab_indices = {}
+
     def register_tab(self, tab, name):
-        self.tab_widget.addTab(tab, name)
+        tab_index = self.tab_widget.addTab(tab, name)
+        self.tab_indices[name] = tab_index
 
     # def initialize_layout(self):
     #     self.main_menu = MainMenu()
@@ -43,6 +46,9 @@ class LayoutManager:
         results_tab = ResultsViewWidget(snapshot_2d_data, snapshot_3d_data)
         new_tab_index = self.tab_widget.addTab(results_tab, f"Snapshot {self.tab_widget.count() + 1}")
         self.tab_widget.setCurrentIndex(new_tab_index)
+
+    def switch_to_calibration_tab(self):
+        self.tab_widget.setCurrentIndex(self.tab_indices['Calibration'])
 
 class TaskManager(QObject):
     new_results_ready = pyqtSignal(object,object)
@@ -124,6 +130,7 @@ class SnapshotGUI(QWidget):
         # self.calibration_manager.calibration_object_created.connect(self.camera_menu.enable_capture_button)
         self.camera_menu.snapshot_captured.connect(self.on_snapshot_captured_signal)
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
+        self.main_menu.calibration_groupbox.clicked.connect(self.layout_manager.switch_to_calibration_tab)
         # self.calibration_manager.calibration_object_created.connect(lambda: self.main_menu.update_calibration_status(True))
 
         # self.camera_tab.calibration_widget.calibration_loaded.connect(self.load_calibration_object)

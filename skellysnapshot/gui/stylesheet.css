@@ -2,7 +2,7 @@
 QLabel {
     font-size: 14px;
     font-weight: bold;
-    border: 1px solid red
+    /* border: 1px solid red */
 }
 
 
@@ -10,9 +10,31 @@ QLabel {
 /* Style for Welcome label */
 QLabel#WelcomeLabel {
     font-size: 36px;
+    font-variant: small-caps;
 }
 
+
+QLabel#CalibrationAdditionalInfoLabel {
+    color:rgb(151, 151, 151);
+    font-weight: normal;
+    text-align: center;
+}
 /* Style for QGroupBox */
+QGroupBox {
+    font-family: Helvetica, Arial,  sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    /* font-variant: small-caps; */
+    color: rgb(255, 255, 255);
+    border: 1px solid rgb(49, 49, 49);
+    border-radius: 10px;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: rgba(40, 40, 40, 0.5);  /* Background color */
+}
+
+/* 
 QGroupBox {
     font-size: 15px;
     font-weight: bold;
@@ -21,11 +43,14 @@ QGroupBox {
     margin-top: 10px;
     padding: 20px;
     background-color: rgba(97, 95, 95, 0.5);  /* Background color */
-}
-
+/* } */ */
 
 QToolTip {
     font-size: 12px;
     border: 1px solid #00e7a2;
     background-color: rgba(97, 95, 95, 0.8);
+}
+
+QPushButton:hover {
+    background-color: #232323; /* Darker shade of the original color */
 }
