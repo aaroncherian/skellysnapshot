@@ -87,10 +87,6 @@ class SnapshotGUI(QWidget):
 
         self.connect_signals_to_slots()
     
-    # def load_calibration_object(self, path_to_calibration_toml):
-    #     self.anipose_calibration_object = load_anipose_calibration_toml_from_path(path_to_calibration_toml)
-    #     self.task_manager.set_anipose_calibration_object(self.anipose_calibration_object)
-    #     # task_worker_thread.join()  # Wait for the thread to finish
     
     def connect_signals_to_slots(self):
         
@@ -99,6 +95,8 @@ class SnapshotGUI(QWidget):
         self.calibration_manager.calibration_object_created.connect(self.camera_menu.enable_capture_button)
         self.camera_menu.snapshot_captured.connect(self.on_snapshot_captured_signal)
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
+        self.calibration_manager.calibration_object_created.connect(lambda: self.main_menu.update_calibration_status(True))
+
         # self.camera_tab.calibration_widget.calibration_loaded.connect(self.load_calibration_object)
 
     def on_snapshot_captured_signal(self, snapshot):

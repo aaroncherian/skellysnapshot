@@ -1,8 +1,11 @@
 /* Style for QLabel */
 QLabel {
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
+    /* border: 1px solid red */
 }
+
+
 
 /* Style for Welcome label */
 QLabel#WelcomeLabel {
@@ -21,3 +24,8 @@ QGroupBox {
 }
 
 
+QToolTip {
+    font-size: 12px;
+    border: 1px solid #00e7a2;
+    background-color: rgba(97, 95, 95, 0.8);
+}

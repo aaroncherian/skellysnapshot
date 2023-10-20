@@ -1,5 +1,5 @@
 from PyQt6.QtCore import pyqtSignal, QObject
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog, QSizePolicy
 from skellysnapshot.calibration.anipose_object_loader import load_anipose_calibration_toml_from_path
 
 class CalibrationManager(QObject):
@@ -29,6 +29,7 @@ class CalibrationMenu(QWidget):
         layout = QVBoxLayout()
 
         self.label = QLabel("Calibration File: Not Loaded")
+        self.label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)  # Set the size policy to Fixed
         layout.addWidget(self.label)
 
         self.button = QPushButton("Load Calibration File")
@@ -40,5 +41,11 @@ class CalibrationMenu(QWidget):
     def load_calibration_file(self):
         filePath, _ = QFileDialog.getOpenFileName(self, "Load Calibration File", "", "TOML Files (*.toml);;All Files (*)")
         if filePath:
-            self.label.setText(f"Calibration File: {filePath}")
+            # Display only the filename in the label
+            filename = filePath.split('/')[-1]
+            self.label.setText(f"Calibration File: {filename}")
+            
+            # Set the tooltip to show the full file path
+            self.label.setToolTip(filePath)
+            
             self.calibration_toml_path_loaded.emit(filePath)
