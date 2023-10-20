@@ -1,11 +1,24 @@
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGroupBox, QHBoxLayout, QSizePolicy,QSpacerItem
 
-class ClickableGroupBox(QGroupBox):
+class HoverableClickableGroupBox(QGroupBox):
     clicked = pyqtSignal()
+
+    def __init__(self, title):
+        super().__init__(title)
+        self.setMouseTracking(True)  # Enable mouse tracking
 
     def mousePressEvent(self, event):
         self.clicked.emit()
+
+    def enterEvent(self, event):
+        # Change style when mouse enters the widget area
+        self.setStyleSheet("HoverableClickableGroupBox { border: 2px solid white; }")
+
+
+    def leaveEvent(self, event):
+        # Revert style when mouse leaves the widget area
+        self.setStyleSheet("HoverableClickableGroupBox { border: none; }")
 
 class MainMenu(QWidget):
     def __init__(self):
@@ -41,11 +54,10 @@ class MainMenu(QWidget):
         layout.addWidget(group_box)
 
     def add_calibration_status_groupbox(self, layout):
-        self.calibration_groupbox = ClickableGroupBox("Calibration Status")
+        self.calibration_groupbox = HoverableClickableGroupBox("Calibration Status")
         self.calibration_groupbox.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.calibration_groupbox.setMinimumHeight(100)
         calibration_layout = QVBoxLayout()
-
 
         self.not_loaded_text = 'Not Loaded'
         self.not_loaded_additional_info = 'Click here to load calibration'
@@ -66,9 +78,7 @@ class MainMenu(QWidget):
         if is_loaded:
             self.calibration_status_label.setText("Loaded")
             self.calibration_status_label.setStyleSheet("color: #00AEDC;")
-
             self.calibration_additional_info_label.setText('Loaded from .toml file')  
-
         else:
             self.calibration_status_label.setText(self.not_loaded_text)
             self.calibration_status_label.setStyleSheet("color: #FD5400;")
