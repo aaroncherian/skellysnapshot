@@ -14,13 +14,16 @@ from skellysnapshot.constants import TaskNames
 class LayoutManager:
     def __init__(self):
         self.tab_widget = QTabWidget()
+    
+    def register_tab(self, tab, name):
+        self.tab_widget.addTab(tab, name)
 
-    def initialize_layout(self):
-        self.main_menu = MainMenu()
-        self.tab_widget.addTab(self.main_menu, "Main Menu")
+    # def initialize_layout(self):
+    #     self.main_menu = MainMenu()
+    #     self.tab_widget.addTab(self.main_menu, "Main Menu")
 
-        self.camera_tab = CameraMenu()
-        self.tab_widget.addTab(self.camera_tab, "Cameras")
+    #     self.camera_tab = CameraMenu()
+    #     self.tab_widget.addTab(self.camera_tab, "Cameras")
 
     def add_results_tab(self, snapshot_2d_data, snapshot_3d_data):
         results_tab = ResultsViewWidget(snapshot_2d_data, snapshot_3d_data)
@@ -62,11 +65,20 @@ class SnapshotGUI(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.main_menu = MainMenu()
+        self.camera_tab = CameraMenu()
+        # self.calibration_tab = CalibrationTab()
+
         self.layout_manager = LayoutManager()
+        
+        self.layout_manager.register_tab(self.main_menu, "Main Menu")
+        self.layout_manager.register_tab(self.camera_tab, "Cameras")
+        # self.layout_manager.register_tab(self.calibration_tab, "Calibration")
+        
         self.task_manager = TaskManager()
 
         layout = QVBoxLayout()
-        self.layout_manager.initialize_layout()
+        # self.layout_manager.initialize_layout()
         layout.addWidget(self.layout_manager.tab_widget)
         self.setLayout(layout)
 
@@ -78,9 +90,9 @@ class SnapshotGUI(QWidget):
         # task_worker_thread.join()  # Wait for the thread to finish
     
     def connect_signals_to_slots(self):
-        self.layout_manager.camera_tab.snapshot_captured.connect(self.on_snapshot_captured_signal)
+        self.camera_tab.snapshot_captured.connect(self.on_snapshot_captured_signal)
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
-        self.layout_manager.camera_tab.calibration_widget.calibration_loaded.connect(self.load_calibration_object)
+        self.camera_tab.calibration_widget.calibration_loaded.connect(self.load_calibration_object)
 
     def on_snapshot_captured_signal(self, snapshot):
         self.task_manager.process_snapshot(snapshot)
