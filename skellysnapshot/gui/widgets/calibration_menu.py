@@ -1,5 +1,5 @@
 from PyQt6.QtCore import pyqtSignal, QObject
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog, QSizePolicy
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog, QSizePolicy, QGroupBox
 
 from skellysnapshot.calibration.freemocap_anipose import CameraGroup  # Import the type
 
@@ -36,13 +36,22 @@ class CalibrationMenu(QWidget):
         super().__init__()
         layout = QVBoxLayout()
 
-        self.label = QLabel("Calibration File: Not Loaded")
-        self.label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)  # Set the size policy to Fixed
-        layout.addWidget(self.label)
+        self.calibration_object_label = QLabel("Calibration Object: Not Loaded")
+        self.calibration_object_label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)  # Set the size policy to Fixed
+        layout.addWidget(self.calibration_object_label)
 
+
+        toml_calibration_group = QGroupBox("Load Calibration File")
+        toml_cal_layout = QVBoxLayout()
+        self.calibration_file_label = QLabel("Calibration File: Not Loaded")
+        self.calibration_file_label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)  # Set the size policy to Fixed
+        toml_cal_layout.addWidget(self.calibration_file_label)
+        toml_calibration_group.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.button = QPushButton("Load Calibration File")
         self.button.clicked.connect(self.load_calibration_file)
-        layout.addWidget(self.button)
+        toml_cal_layout.addWidget(self.button)
+        toml_calibration_group.setLayout(toml_cal_layout)
+        layout.addWidget(toml_calibration_group)
 
         self.setLayout(layout)
 
@@ -51,12 +60,19 @@ class CalibrationMenu(QWidget):
         if filePath:
             # Display only the filename in the label
             filename = filePath.split('/')[-1]
-            self.label.setText(f"Calibration File: {filename}")
+            self.calibration_file_label.setText(f"Calibration File: {filename}")
             
             # Set the tooltip to show the full file path
-            self.label.setToolTip(filePath)
+            self.calibration_file_label.setToolTip(filePath)
             
             self.calibration_toml_path_loaded.emit(filePath)
+
+    def update_calibration_object_status(self, is_loaded):
+        if is_loaded:
+            self.calibration_object_label.setText("Calibration Object: Loaded")
+        else:
+            self.calibration_object_label.setText("Calibration Object: Not Loaded")
+
 
 
 if __name__ == '__main__':

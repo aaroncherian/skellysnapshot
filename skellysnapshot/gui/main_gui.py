@@ -115,7 +115,8 @@ class SnapshotGUI(QWidget):
         calibration_subscribers = [
             self.task_manager.set_anipose_calibration_object,
             lambda _: self.camera_menu.enable_capture_button(),
-            lambda _: self.main_menu.update_calibration_status(True)
+            lambda _: self.main_menu.update_calibration_status(True),
+            lambda _: self.calibration_menu.update_calibration_object_status(True)
         ]
         
         for subscriber in calibration_subscribers:
