@@ -7,8 +7,7 @@ from typing import Union
 from pathlib import Path
 
 class CalibrationManager:
-    def __init__(self, event_bus, app_state):
-        self.event_bus = event_bus
+    def __init__(self, app_state):
         self.anipose_calibration_object = None  # This will hold the actual calibration data
         self.app_state = app_state
 
@@ -23,13 +22,6 @@ class CalibrationManager:
             self.anipose_calibration_object = None  # Reset the object to None if loading fails
         
         self.app_state.update_calibration_state(self.anipose_calibration_object)
-
-    def publish_calibration_event(self):
-        if isinstance(self.anipose_calibration_object, CameraGroup):  # Validate the object type
-            self.event_bus.publish('calibration_object_created', self.anipose_calibration_object)
-
-        else:
-            print(f"Failed to publish event: Invalid calibration object type. Calibration object must be of type CameraGroup, but is of type {type(self.anipose_calibration_object)}")
 
 class CalibrationMenu(QWidget):
     calibration_toml_path_loaded = pyqtSignal(str)  # Signal emitted when a calibration file is loaded
@@ -78,34 +70,4 @@ class CalibrationMenu(QWidget):
 
 
 if __name__ == '__main__':
-
-#testing anipose calibration loading 
-    class DummyEventBus:
-        def publish(self, event_name, event_data):
-            print(f"Published event: {event_name}, Data: {event_data}")
-
-    # Initialize a dummy event bus
-    dummy_event_bus = DummyEventBus()
-
-    # Initialize your CalibrationManager
-    calibration_manager = CalibrationManager(dummy_event_bus)
-    path_to_toml = r"C:\Users\aaron\FreeMocap_Data\recording_sessions\session_2023-10-20_13_56_27\recording_14_01_50_gmt-4_calibration\recording_14_01_50_gmt-4_calibration_camera_calibration.toml"
-
-    # Test case 1: Valid object
-    print("Test case 1: Valid object")
-    calibration_manager.load_calibration_from_file(path_to_toml)
-    # Output should indicate success and an event should be published
-
-    # Test case 2: Manually set the object to None and test
-    print("Test case 2: Object set to None")
-    calibration_manager.anipose_calibration_object = None
-    calibration_manager.publish_calibration_event()
-    # Output should indicate failure and no event should be published
-
-    # Test case 3: Manually set the object to an invalid type and test
-    print("Test case 3: Object set to invalid type")
-    calibration_manager.anipose_calibration_object = "This is not a CameraGroup"
-    calibration_manager.publish_calibration_event()
-    # Output should indicate failure and no event should be published
-
-    # Note that this is a simplified example. In your actual code, you might want to use proper unit testing frameworks and methodologies.
+    pass

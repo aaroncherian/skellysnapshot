@@ -12,19 +12,6 @@ from skellysnapshot.task_worker_thread import TaskWorkerThread
 from skellysnapshot.constants import TaskNames
 from skellysnapshot.calibration.freemocap_anipose import CameraGroup  # Import the type
 
-class EventBus:
-    def __init__(self):
-        self.subscribers = {}
-
-    def subscribe(self, event_type, callback):
-        if event_type not in self.subscribers:
-            self.subscribers[event_type] = []
-        self.subscribers[event_type].append(callback)
-
-    def publish(self, event_type, data):
-        if event_type in self.subscribers:
-            for callback in self.subscribers[event_type]:
-                callback(data)
 
 class LayoutManager:
     def __init__(self):
@@ -119,7 +106,6 @@ class SnapshotGUI(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.event_bus = EventBus()
         self.app_state = AppState()
 
         self.main_menu = MainMenu()
@@ -133,7 +119,7 @@ class SnapshotGUI(QWidget):
         self.layout_manager.register_tab(self.calibration_menu, "Calibration")
         
         self.task_manager = TaskManager(self.app_state)
-        self.calibration_manager = CalibrationManager(self.event_bus, self.app_state)
+        self.calibration_manager = CalibrationManager(self.app_state)
 
         layout = QVBoxLayout()
         # self.layout_manager.initialize_layout()
@@ -160,8 +146,6 @@ class SnapshotGUI(QWidget):
             lambda _: self.calibration_menu.update_calibration_object_status(True)
         ]
         
-        for subscriber in calibration_subscribers:
-            self.event_bus.subscribe('calibration_object_created', subscriber)
 
 
     
