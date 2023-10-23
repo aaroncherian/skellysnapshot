@@ -52,12 +52,13 @@ class LayoutManager:
 
 class TaskManager(QObject):
     new_results_ready = pyqtSignal(object,object)
-    def __init__(self, anipose_calibration_object=None):
+    def __init__(self, app_state):
         super().__init__()
-        self.anipose_calibration_object = anipose_calibration_object
+        self.app_state = app_state 
+        self.anipose_calibration_object = None
 
-    def set_anipose_calibration_object(self, anipose_calibration_object):
-        self.anipose_calibration_object = anipose_calibration_object
+    def set_anipose_calibration_object(self, calibration_state):
+        self.anipose_calibration_object = calibration_state.calibration_object
         print(f'Calibration {self.anipose_calibration_object} loaded into task manager')
 
     def process_snapshot(self, snapshot):
@@ -82,11 +83,38 @@ class TaskManager(QObject):
         self.new_results_ready.emit(self.snapshot2d_data,self.snapshot3d_data)
 
 
+class CalibrationState:
+    def __init__(self):
+        self.status = "NOT_LOADED"  # or use enums
+        self.calibration_object = None
+
+class AppState:
+    def __init__(self):
+        self.calibration_state = CalibrationState()
+        self.subscribers = []
+
+    def update_calibration_state(self, calibration_object=None):
+        if calibration_object:
+            self.calibration_state.calibration_object = calibration_object
+            self.calibration_state.status = "LOADED"  # or use enums
+        else:
+            self.calibration_state.calibration_object = None
+            self.calibration_state.status = "NOT_LOADED"  # or use enums
+        self.notify_subscribers()
+
+    def subscribe(self, subscriber):
+        self.subscribers.append(subscriber)
+
+    def notify_subscribers(self):
+        for subscriber in self.subscribers:
+            subscriber(self.calibration_state)
+
 class SnapshotGUI(QWidget):
     def __init__(self):
         super().__init__()
 
         self.event_bus = EventBus()
+        self.app_state = AppState()
 
         self.main_menu = MainMenu()
         self.camera_menu = CameraMenu()
@@ -98,18 +126,25 @@ class SnapshotGUI(QWidget):
         self.layout_manager.register_tab(self.camera_menu, "Cameras")
         self.layout_manager.register_tab(self.calibration_menu, "Calibration")
         
-        self.task_manager = TaskManager()
-        self.calibration_manager = CalibrationManager(self.event_bus)
+        self.task_manager = TaskManager(self.app_state)
+        self.calibration_manager = CalibrationManager(self.event_bus, self.app_state)
 
         layout = QVBoxLayout()
         # self.layout_manager.initialize_layout()
         layout.addWidget(self.layout_manager.tab_widget)
         self.setLayout(layout)
+        self.add_calibration_subscribers()
 
 
-        self.connect_signals_to_event_bus()
+        # self.connect_signals_to_event_bus()
 
         self.connect_signals_to_slots()
+
+    def add_calibration_subscribers(self):
+        self.app_state.subscribe(self.task_manager.set_anipose_calibration_object)
+        self.app_state.subscribe(lambda state: self.camera_menu.enable_capture_button() if state.status == "LOADED" else None)
+        self.app_state.subscribe(lambda state: self.main_menu.update_calibration_status(state.status == "LOADED"))
+        self.app_state.subscribe(lambda state: self.calibration_menu.update_calibration_object_status(state.status == "LOADED"))
     
     def connect_signals_to_event_bus(self):
         calibration_subscribers = [

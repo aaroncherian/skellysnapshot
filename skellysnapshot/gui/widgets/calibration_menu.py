@@ -7,9 +7,11 @@ from typing import Union
 from pathlib import Path
 
 class CalibrationManager:
-    def __init__(self, event_bus):
+    def __init__(self, event_bus, app_state):
         self.event_bus = event_bus
         self.anipose_calibration_object = None  # This will hold the actual calibration data
+        self.app_state = app_state
+
 
     def load_calibration_from_file(self, filepath: Union[str, Path]):
         try:
@@ -17,7 +19,7 @@ class CalibrationManager:
             print(f"Calibration object {self.anipose_calibration_object} loaded from {filepath}")
 
             # Publish the event if the object is valid
-            self.publish_calibration_event()
+            self.app_state.update_calibration_state(self.anipose_calibration_object)
 
         except Exception as e:
             print(f"Failed to load calibration object from {filepath}: {e}")
