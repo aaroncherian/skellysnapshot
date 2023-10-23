@@ -10,6 +10,7 @@ from skellysnapshot.main import MyClass
 from skellysnapshot.calibration.anipose_object_loader import load_anipose_calibration_toml_from_path
 from skellysnapshot.task_worker_thread import TaskWorkerThread
 from skellysnapshot.constants import TaskNames
+from skellysnapshot.calibration.freemocap_anipose import CameraGroup  # Import the type
 
 class EventBus:
     def __init__(self):
@@ -94,6 +95,10 @@ class AppState:
         self.subscribers = []
 
     def update_calibration_state(self, calibration_object=None):
+        if not isinstance(calibration_object, CameraGroup):
+            print(f"Invalid calibration object type. Must be of type CameraGroup, but is of type {type(calibration_object)}")
+            return
+        
         if calibration_object:
             self.calibration_state.calibration_object = calibration_object
             self.calibration_state.status = "LOADED"  # or use enums
@@ -101,6 +106,7 @@ class AppState:
             self.calibration_state.calibration_object = None
             self.calibration_state.status = "NOT_LOADED"  # or use enums
         self.notify_subscribers()
+
 
     def subscribe(self, subscriber):
         self.subscribers.append(subscriber)

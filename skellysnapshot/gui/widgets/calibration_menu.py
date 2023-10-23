@@ -18,16 +18,16 @@ class CalibrationManager:
             self.anipose_calibration_object = CameraGroup.load(str(filepath))  # Directly load the object here
             print(f"Calibration object {self.anipose_calibration_object} loaded from {filepath}")
 
-            # Publish the event if the object is valid
-            self.app_state.update_calibration_state(self.anipose_calibration_object)
-
         except Exception as e:
-            print(f"Failed to load calibration object from {filepath}: {e}")
+            print(f"Failed to load calibration object from {filepath} with error: {e}")
             self.anipose_calibration_object = None  # Reset the object to None if loading fails
+        
+        self.app_state.update_calibration_state(self.anipose_calibration_object)
 
     def publish_calibration_event(self):
         if isinstance(self.anipose_calibration_object, CameraGroup):  # Validate the object type
             self.event_bus.publish('calibration_object_created', self.anipose_calibration_object)
+
         else:
             print(f"Failed to publish event: Invalid calibration object type. Calibration object must be of type CameraGroup, but is of type {type(self.anipose_calibration_object)}")
 
