@@ -133,19 +133,14 @@ class SnapshotGUI(QWidget):
             self.app_state.subscribe("calibration", subscriber)
 
 
-    
     def connect_signals_to_slots(self):
         
         self.calibration_menu.calibration_toml_path_loaded.connect(self.calibration_manager.load_calibration_from_file)
-        # self.calibration_manager.calibration_object_created.connect(self.task_manager.set_anipose_calibration_object)
-        # self.calibration_manager.calibration_object_created.connect(self.camera_menu.enable_capture_button)
         self.camera_menu.snapshot_captured.connect(self.on_snapshot_captured_signal)
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
         self.main_menu.calibration_groupbox.clicked.connect(self.layout_manager.switch_to_calibration_tab)
         self.main_menu.process_snapshot_ready_group_box.clicked.connect(self.layout_manager.switch_to_camera_tab)
-        # self.calibration_manager.calibration_object_created.connect(lambda: self.main_menu.update_calibration_status(True))
 
-        # self.camera_tab.calibration_widget.calibration_loaded.connect(self.load_calibration_object)
 
     def on_snapshot_captured_signal(self, snapshot):
         self.task_manager.process_snapshot(snapshot)
@@ -153,8 +148,6 @@ class SnapshotGUI(QWidget):
     def on_results_ready_signal(self, snapshot2d_data, snapshot3d_data):
         self.layout_manager.add_results_tab(snapshot2d_data, snapshot3d_data)
 
-
-        # self.add_results_tab(self.snapshot2d_data.annotated_images, self.snapshot3d_data)
 
 class MainWindow(QMainWindow):
     def __init__(self):
