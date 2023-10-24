@@ -95,16 +95,34 @@ class SnapshotGUI(QWidget):
         layout.addWidget(self.layout_manager.tab_widget)
         self.setLayout(layout)
         self.add_calibration_subscribers()
+        self.add_enable_processing_subscribers()
 
 
         # self.connect_signals_to_event_bus()
 
         self.connect_signals_to_slots()
+    
+    def add_enable_processing_subscribers(self):
+        enable_processing_subscribers = [
+            self.check_enable_conditions,
+        ]
+
+        for subscriber in enable_processing_subscribers:
+            self.app_state.process_enable_conditions.subscribe(subscriber)
+
+    def check_enable_conditions(self,process_enable_conditions):
+        print('Checking button conditions. Current conditions: ', process_enable_conditions.conditions)
+
+        if all(process_enable_conditions.conditions.values()):
+                self.camera_menu.enable_capture_button()
+        else:
+                self.camera_menu.disable_capture_button() 
 
     def add_calibration_subscribers(self):
         calibration_subscribers = [
             self.task_manager.set_anipose_calibration_object,
-            self.check_enable_conditions,
+            # self.check_enable_conditions,
+            lambda state: self.app_state.update_button_enable_conditions('calibration_loaded', state.status == "LOADED"),
             lambda state: self.main_menu.update_calibration_status(state.status == "LOADED"),
             lambda state: self.calibration_menu.update_calibration_object_status(state.status == "LOADED")
         ]
@@ -112,13 +130,6 @@ class SnapshotGUI(QWidget):
         for subscriber in calibration_subscribers:
             self.app_state.subscribe("calibration", subscriber)
 
-    def check_enable_conditions(self,state):
-        self.app_state.process_enable_conditions.conditions['calibration_loaded'] = state.status == "LOADED"
-
-        if all(self.app_state.process_enable_conditions.conditions.values()):
-                self.camera_menu.enable_capture_button()
-        else:
-                self.camera_menu.disable_capture_button() 
 
     
     def connect_signals_to_slots(self):
