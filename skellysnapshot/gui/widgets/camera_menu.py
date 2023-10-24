@@ -87,6 +87,9 @@ class CameraMenu(QWidget):
         self.capture_button.setEnabled(True)
         # self.calibration_loaded.emit(filePath)  # Forward the signal if needed
 
+    def disable_capture_button(self):
+        self.capture_button.setEnabled(False)
+
     def update_image(self, qt_image, camera_index):
         self.labels[camera_index].setPixmap(QPixmap.fromImage(qt_image))
 

@@ -104,13 +104,21 @@ class SnapshotGUI(QWidget):
     def add_calibration_subscribers(self):
         calibration_subscribers = [
             self.task_manager.set_anipose_calibration_object,
-            lambda state: self.camera_menu.enable_capture_button() if state.status == "LOADED" else None,
+            self.check_enable_conditions,
             lambda state: self.main_menu.update_calibration_status(state.status == "LOADED"),
             lambda state: self.calibration_menu.update_calibration_object_status(state.status == "LOADED")
         ]
         
         for subscriber in calibration_subscribers:
             self.app_state.subscribe("calibration", subscriber)
+
+    def check_enable_conditions(self,state):
+        self.app_state.process_enable_conditions.conditions['calibration_loaded'] = state.status == "LOADED"
+
+        if all(self.app_state.process_enable_conditions.conditions.values()):
+                self.camera_menu.enable_capture_button()
+        else:
+                self.camera_menu.disable_capture_button() 
 
     
     def connect_signals_to_slots(self):
@@ -137,6 +145,7 @@ class SnapshotGUI(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+
         self.snapshot_gui = SnapshotGUI()
         self.setCentralWidget(self.snapshot_gui)
 

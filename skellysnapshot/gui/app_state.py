@@ -5,9 +5,20 @@ class CalibrationState:
         self.status = "NOT_LOADED"  # or use enums
         self.calibration_object = None
 
+class ProcessEnableConditions:
+    def __init__(self):
+        self.conditions = {
+            'calibration_loaded': False,
+            # 'cameras_connected': False,
+        }
+
+
+
+
 class AppState:
     def __init__(self):
         self.calibration_state = CalibrationState()
+        self.process_enable_conditions = ProcessEnableConditions()
         self.subscribers = {"calibration": []}
 
     def update_calibration_state(self, calibration_object=None):
