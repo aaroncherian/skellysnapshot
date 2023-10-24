@@ -11,16 +11,6 @@ class ProcessEnableConditions:
             'calibration_loaded': False,
             # 'cameras_connected': False  # You can add more conditions here
         }
-        self.subscribers = []
-
-    def subscribe(self, subscriber):
-        print('Subscribing process enabling subscriber: ', subscriber)
-        self.subscribers.append(subscriber)
-
-    def notify_subscribers(self):
-        print(f'Notifying process enabling subscribers {self.subscribers} of current conditions: {self.conditions}')
-        for subscriber in self.subscribers:
-            subscriber(self)
 
 
 class AppState:
