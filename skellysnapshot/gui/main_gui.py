@@ -38,8 +38,8 @@ class LayoutManager:
     #     self.camera_tab = CameraMenu()
     #     self.tab_widget.addTab(self.camera_tab, "Cameras")
 
-    def add_results_tab(self, snapshot_2d_data, snapshot_3d_data):
-        results_tab = ResultsViewWidget(snapshot_2d_data, snapshot_3d_data)
+    def add_results_tab(self, snapshot_2d_data, snapshot_3d_data, snapshot_center_of_mass_data):
+        results_tab = ResultsViewWidget(snapshot_2d_data, snapshot_3d_data,snapshot_center_of_mass_data)
         new_tab_index = self.tab_widget.addTab(results_tab, f"Snapshot {self.tab_widget.count() + 1}")
         self.tab_widget.setCurrentIndex(new_tab_index)
 
@@ -50,7 +50,7 @@ class LayoutManager:
         self.tab_widget.setCurrentIndex(self.tab_indices['Cameras'])
 
 class TaskManager(QObject):
-    new_results_ready = pyqtSignal(object,object)
+    new_results_ready = pyqtSignal(object,object, object)
     def __init__(self, app_state):
         super().__init__()
         self.app_state = app_state 
@@ -68,7 +68,7 @@ class TaskManager(QObject):
         task_worker_thread = TaskWorkerThread(
             snapshot=snapshot,
             anipose_calibration_object=self.anipose_calibration_object,
-            task_queue=[TaskNames.TASK_RUN_MEDIAPIPE, TaskNames.TASK_RUN_3D_RECONSTRUCTION],
+            task_queue=[TaskNames.TASK_RUN_MEDIAPIPE, TaskNames.TASK_RUN_3D_RECONSTRUCTION, TaskNames.TASK_CALCULATE_CENTER_OF_MASS],
             task_running_callback=None,
             task_completed_callback=None,
             all_tasks_completed_callback=self.handle_all_tasks_completed
@@ -79,7 +79,8 @@ class TaskManager(QObject):
     def handle_all_tasks_completed(self, task_results: dict):
         self.snapshot2d_data = task_results[TaskNames.TASK_RUN_MEDIAPIPE]['result']
         self.snapshot3d_data = task_results[TaskNames.TASK_RUN_3D_RECONSTRUCTION]['result']
-        self.new_results_ready.emit(self.snapshot2d_data,self.snapshot3d_data)
+        self.snapshot_center_of_mass_data = task_results[TaskNames.TASK_CALCULATE_CENTER_OF_MASS]['result']
+        self.new_results_ready.emit(self.snapshot2d_data,self.snapshot3d_data, self.snapshot_center_of_mass_data)
 
 
 
@@ -154,8 +155,8 @@ class SnapshotGUI(QWidget):
     def on_snapshot_captured_signal(self, snapshot):
         self.task_manager.process_snapshot(snapshot)
 
-    def on_results_ready_signal(self, snapshot2d_data, snapshot3d_data):
-        self.layout_manager.add_results_tab(snapshot2d_data, snapshot3d_data)
+    def on_results_ready_signal(self, snapshot2d_data, snapshot3d_data, snapshot_center_of_mass_data):
+        self.layout_manager.add_results_tab(snapshot2d_data, snapshot3d_data, snapshot_center_of_mass_data)
 
 
 class MainWindow(QMainWindow):

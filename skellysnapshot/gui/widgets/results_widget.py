@@ -42,7 +42,7 @@ class ClickableImageLabel(QLabel):
 
 
 class ResultsViewWidget(QWidget):
-    def __init__(self, snapshot_data_2d, snapshot_data_3d):
+    def __init__(self, snapshot_data_2d, snapshot_data_3d,snapshot_center_of_mass_data):
         super().__init__()
         layout = QHBoxLayout()
 
@@ -81,6 +81,7 @@ class ResultsViewWidget(QWidget):
         skeleton_view = SkeletonViewWidget('3d plot')
         skeleton_view.setMinimumSize(600, 600)
         skeleton_view.plot_frame_of_3d_skeleton(snapshot_data_3d)
+        skeleton_view.plot_center_of_mass(snapshot_center_of_mass_data)
         layout.addWidget(skeleton_view)
 
         self.setLayout(layout)

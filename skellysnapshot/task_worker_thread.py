@@ -5,6 +5,7 @@ import threading
 from skellysnapshot.constants import TaskNames
 from skellysnapshot.pose_estimation_2d.mediapipe_things.run_mediapipe import run_mediapipe_detection
 from skellysnapshot.reconstruction_3d.reconstruct_3d import process_2d_data_to_3d
+from skellysnapshot.center_of_mass.calculate_center_of_mass import run_center_of_mass_calculations
 from skellysnapshot.visualize_3d.create_3d_figure import plot_frame_of_3d_skeleton
 
 
@@ -21,6 +22,7 @@ class TaskWorkerThread(threading.Thread):
         self.available_tasks = {
             TaskNames.TASK_RUN_MEDIAPIPE: self.run_2d_pose_estimation,
             TaskNames.TASK_RUN_3D_RECONSTRUCTION: self.run_3d_reconstruction,
+            TaskNames.TASK_CALCULATE_CENTER_OF_MASS: self.run_calculate_center_of_mass
         }
 
         self.tasks = {task_name: {'function': self.available_tasks[task_name], 'result': None} for task_name in
@@ -69,6 +71,13 @@ class TaskWorkerThread(threading.Thread):
             raise ValueError("2D snapshot data is missing.")
         snapshot_data_3d = process_2d_data_to_3d(snapshot_data_2d=snapshot_data_2d, anipose_calibration_object=self.anipose_calibration_object)
         return True, snapshot_data_3d
+    
+    def run_calculate_center_of_mass(self):
+        snapshot_data_3d = self.tasks[TaskNames.TASK_RUN_3D_RECONSTRUCTION]['result']
+        if snapshot_data_3d is None:
+            raise ValueError("3D snapshot data is missing.")
+        snapshot_center_of_mass_3d = run_center_of_mass_calculations(processed_skel3d_frame_marker_xyz=snapshot_data_3d.data_3d_camera_frame_marker_dimension)
+        return True, snapshot_center_of_mass_3d
     
     # def visualize_3d(self):
     #     snapshot_data_3d = self.tasks[TaskNames.TASK_RUN_3D_RECONSTRUCTION]['result']

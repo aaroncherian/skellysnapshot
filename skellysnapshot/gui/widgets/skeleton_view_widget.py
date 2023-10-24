@@ -66,6 +66,11 @@ class SkeletonViewWidget(QWidget):
         ax.set_xlim([mx_skel - skel_3d_range, mx_skel + skel_3d_range])
         ax.set_ylim([my_skel - skel_3d_range, my_skel + skel_3d_range])
         ax.set_zlim([mz_skel - skel_3d_range, mz_skel + skel_3d_range])
+    
+    def plot_center_of_mass(self, snapshot_center_of_mass_data):
+        total_body_center_of_mass_xyz = snapshot_center_of_mass_data.total_body_center_of_mass_xyz
+        ax = self.ax
+        ax.scatter(total_body_center_of_mass_xyz[0,0],total_body_center_of_mass_xyz[0,1],total_body_center_of_mass_xyz[0,2],color='purple')
 
 
     # def load_skeleton(self,skeleton_3d_data:np.ndarray):

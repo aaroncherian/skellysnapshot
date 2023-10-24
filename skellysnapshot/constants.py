@@ -5,3 +5,4 @@ class TaskNames(Enum):
         TASK_RUN_MEDIAPIPE = 'run_mediapipe'
         TASK_RUN_3D_RECONSTRUCTION = 'run_3d_reconstruction'
         TASK_VISUALIZE_3D = 'visualize_3d'
+        TASK_CALCULATE_CENTER_OF_MASS = 'calculate_center_of_mass'
