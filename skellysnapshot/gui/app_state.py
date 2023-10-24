@@ -9,7 +9,7 @@ class ProcessEnableConditions:
     def __init__(self):
         self.conditions = {
             'calibration_loaded': False,
-            'cameras_connected': False  # You can add more conditions here
+            # 'cameras_connected': False  # You can add more conditions here
         }
         self.subscribers = []
 
@@ -42,10 +42,18 @@ class AppState:
             self.calibration_state.status = "NOT_LOADED"  # or use enums
         self.notify_subscribers("calibration", self.calibration_state)
 
+    def check_enable_conditions(self):
+        all_conditions_met = all(self.process_enable_conditions.conditions.values())
+        print(f"Checking enable conditions. All conditions met: {all_conditions_met}")
+        print(f"Current condition states: {self.process_enable_conditions.conditions}")
+        self.notify_subscribers("enable_processing", all_conditions_met)
+
+
     def update_button_enable_conditions(self, condition_name, condition_value):
-        print('Update recieved. Condition name: ', condition_name, ' Condition value: ', condition_value)
+        print(f"Received update for enabling snapshot processing: '{condition_name}' with value '{condition_value}'")
         self.process_enable_conditions.conditions[condition_name] = condition_value
-        self.process_enable_conditions.notify_subscribers()
+        print(f"Updated conditions: {self.process_enable_conditions.conditions}")
+        self.check_enable_conditions()
 
     def subscribe(self, topic, subscriber):
         print('Subscribing to topic: ', topic, ' Subscriber: ', subscriber)

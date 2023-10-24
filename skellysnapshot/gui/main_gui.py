@@ -108,15 +108,13 @@ class SnapshotGUI(QWidget):
         ]
 
         for subscriber in enable_processing_subscribers:
-            self.app_state.process_enable_conditions.subscribe(subscriber)
+            self.app_state.subscribe("enable_processing", subscriber)
 
-    def check_enable_conditions(self,process_enable_conditions):
-        print('Checking button conditions. Current conditions: ', process_enable_conditions.conditions)
-
-        if all(process_enable_conditions.conditions.values()):
-                self.camera_menu.enable_capture_button()
+    def check_enable_conditions(self, all_conditions_met):
+        if all_conditions_met:
+            self.camera_menu.enable_capture_button()
         else:
-                self.camera_menu.disable_capture_button() 
+            self.camera_menu.disable_capture_button()
 
     def add_calibration_subscribers(self):
         calibration_subscribers = [
