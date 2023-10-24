@@ -35,6 +35,8 @@ class MainMenu(QWidget):
         # Add Calibration Status GroupBox
         self.add_calibration_status_groupbox(main_layout)
 
+        self.add_process_snapshot_ready_groupbox(main_layout)
+
         # Add Spacer
         spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         main_layout.addItem(spacer)
@@ -82,4 +84,28 @@ class MainMenu(QWidget):
         else:
             self.calibration_status_label.setText(self.not_loaded_text)
             self.calibration_status_label.setStyleSheet("color: #FD5400;")
-            self.calibration_additional_info_label.setText(self.not_loaded_additional_info)  
+            self.calibration_additional_info_label.setText(self.not_loaded_additional_info)
+
+    def add_process_snapshot_ready_groupbox(self, layout):
+        self.process_snapshot_ready_group_box = HoverableClickableGroupBox("Process Snapshot Status")
+        self.process_snapshot_ready_group_box.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.process_snapshot_ready_group_box.setMinimumHeight(100)
+        group_layout = QVBoxLayout()
+
+        self.not_ready_text = 'Not Ready'
+        self.process_ready_status_label = QLabel(self.not_ready_text)
+        self.process_ready_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.process_ready_status_label.setStyleSheet("color: orange;")
+
+        group_layout.addWidget(self.process_ready_status_label)
+        self.process_snapshot_ready_group_box.setLayout(group_layout)
+
+        layout.addWidget(self.process_snapshot_ready_group_box)
+
+    def update_process_snapshot_ready_status(self, is_ready):
+        if is_ready:
+            self.process_ready_status_label.setText("Ready")
+            self.process_ready_status_label.setStyleSheet("color: #00AEDC;")
+        else:
+            self.process_ready_status_label.setText(self.not_ready_text)
+            self.process_ready_status_label.setStyleSheet("color: #FD5400;")

@@ -37,6 +37,9 @@ class LayoutManager:
     def switch_to_calibration_tab(self):
         self.tab_widget.setCurrentIndex(self.tab_indices['Calibration'])
 
+    def switch_to_camera_tab(self):
+        self.tab_widget.setCurrentIndex(self.tab_indices['Cameras'])
+
 class TaskManager(QObject):
     new_results_ready = pyqtSignal(object,object)
     def __init__(self, app_state):
@@ -105,6 +108,7 @@ class SnapshotGUI(QWidget):
     def add_enable_processing_subscribers(self):
         enable_processing_subscribers = [
             self.check_enable_conditions,
+            self.main_menu.update_process_snapshot_ready_status
         ]
 
         for subscriber in enable_processing_subscribers:
@@ -138,6 +142,7 @@ class SnapshotGUI(QWidget):
         self.camera_menu.snapshot_captured.connect(self.on_snapshot_captured_signal)
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
         self.main_menu.calibration_groupbox.clicked.connect(self.layout_manager.switch_to_calibration_tab)
+        self.main_menu.process_snapshot_ready_group_box.clicked.connect(self.layout_manager.switch_to_camera_tab)
         # self.calibration_manager.calibration_object_created.connect(lambda: self.main_menu.update_calibration_status(True))
 
         # self.camera_tab.calibration_widget.calibration_loaded.connect(self.load_calibration_object)
