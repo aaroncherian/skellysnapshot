@@ -79,7 +79,7 @@ class CalibrationState:
 class AppState:
     def __init__(self):
         self.calibration_state = CalibrationState()
-        self.subscribers = []
+        self.subscribers = {"calibration": []}
 
     def update_calibration_state(self, calibration_object=None):
         if not isinstance(calibration_object, CameraGroup):
@@ -92,15 +92,17 @@ class AppState:
         else:
             self.calibration_state.calibration_object = None
             self.calibration_state.status = "NOT_LOADED"  # or use enums
-        self.notify_subscribers()
+        self.notify_subscribers("calibration", self.calibration_state)
 
 
-    def subscribe(self, subscriber):
-        self.subscribers.append(subscriber)
+    def subscribe(self, topic, subscriber):
+        if topic not in self.subscribers:
+            self.subscribers[topic] = []
+        self.subscribers[topic].append(subscriber)
 
-    def notify_subscribers(self):
-        for subscriber in self.subscribers:
-            subscriber(self.calibration_state)
+    def notify_subscribers(self, topic, state_data):
+        for subscriber in self.subscribers.get(topic, []):
+            subscriber(state_data)
 
 class SnapshotGUI(QWidget):
     def __init__(self):
@@ -133,20 +135,15 @@ class SnapshotGUI(QWidget):
         self.connect_signals_to_slots()
 
     def add_calibration_subscribers(self):
-        self.app_state.subscribe(self.task_manager.set_anipose_calibration_object)
-        self.app_state.subscribe(lambda state: self.camera_menu.enable_capture_button() if state.status == "LOADED" else None)
-        self.app_state.subscribe(lambda state: self.main_menu.update_calibration_status(state.status == "LOADED"))
-        self.app_state.subscribe(lambda state: self.calibration_menu.update_calibration_object_status(state.status == "LOADED"))
-    
-    def connect_signals_to_event_bus(self):
         calibration_subscribers = [
             self.task_manager.set_anipose_calibration_object,
-            lambda _: self.camera_menu.enable_capture_button(),
-            lambda _: self.main_menu.update_calibration_status(True),
-            lambda _: self.calibration_menu.update_calibration_object_status(True)
+            lambda state: self.camera_menu.enable_capture_button() if state.status == "LOADED" else None,
+            lambda state: self.main_menu.update_calibration_status(state.status == "LOADED"),
+            lambda state: self.calibration_menu.update_calibration_object_status(state.status == "LOADED")
         ]
         
-
+        for subscriber in calibration_subscribers:
+            self.app_state.subscribe("calibration", subscriber)
 
     
     def connect_signals_to_slots(self):
