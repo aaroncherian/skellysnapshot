@@ -1,5 +1,5 @@
 from skellysnapshot.calibration.freemocap_anipose import CameraGroup 
-
+import logging
 class CalibrationState:
     def __init__(self):
         self.status = "NOT_LOADED"  # or use enums
@@ -21,7 +21,7 @@ class AppState:
 
     def update_calibration_state(self, calibration_object=None):
         if not isinstance(calibration_object, CameraGroup):
-            print(f"Invalid calibration object type. Must be of type CameraGroup, but is of type {type(calibration_object)}")
+            logging.warning(f"Invalid calibration object type. Must be of type CameraGroup, but is of type {type(calibration_object)}")
             return
         
         if calibration_object:
@@ -34,19 +34,19 @@ class AppState:
 
     def check_enable_conditions(self):
         all_conditions_met = all(self.process_enable_conditions.conditions.values())
-        print(f"Checking enable conditions. All conditions met: {all_conditions_met}")
-        print(f"Current condition states: {self.process_enable_conditions.conditions}")
+        logging.info(f"Checking enable conditions. All conditions met: {all_conditions_met}")
+        logging.debug(f"Current condition states: {self.process_enable_conditions.conditions}")
         self.notify_subscribers("enable_processing", all_conditions_met)
 
 
     def update_button_enable_conditions(self, condition_name, condition_value):
-        print(f"Received update for enabling snapshot processing: '{condition_name}' with value '{condition_value}'")
+        logging.info(f"Received update for enabling snapshot processing: '{condition_name}' with value '{condition_value}'")
         self.process_enable_conditions.conditions[condition_name] = condition_value
-        print(f"Updated conditions: {self.process_enable_conditions.conditions}")
+        logging.debug(f"Updated conditions: {self.process_enable_conditions.conditions}")
         self.check_enable_conditions()
 
     def subscribe(self, topic, subscriber):
-        print('Subscribing to topic: ', topic, ' Subscriber: ', subscriber)
+        logging.info(f'Subscribing to topic: {topic}, Subscriber: {subscriber}')
         if topic not in self.subscribers:
             self.subscribers[topic] = []
         self.subscribers[topic].append(subscriber)

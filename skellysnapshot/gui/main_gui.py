@@ -12,6 +12,15 @@ from skellysnapshot.task_worker_thread import TaskWorkerThread
 from skellysnapshot.constants import TaskNames
 from skellysnapshot.gui.app_state import AppState
 
+
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
 class LayoutManager:
     def __init__(self):
         self.tab_widget = QTabWidget()
