@@ -14,13 +14,21 @@ class HoverableClickableGroupBox(QGroupBox):
     def enterEvent(self, event):
         # Change style when mouse enters the widget area
         self.setStyleSheet("HoverableClickableGroupBox { border: 2px solid white; background-color: rgb(55, 55, 55)}")
-
+        for child in self.findChildren(QLabel):
+            current_style = child.styleSheet()
+            new_style = current_style + "; background-color: rgb(55, 55, 55);"
+            child.setStyleSheet(new_style)
 
     def leaveEvent(self, event):
         # Revert style when mouse leaves the widget area
         self.setStyleSheet("HoverableClickableGroupBox { border: none; background-color:  rgb(40, 40, 40)}")
+        for child in self.findChildren(QLabel):
+            current_style = child.styleSheet()
+            new_style = current_style + "; background-color: rgb(40, 40, 40);"
+            child.setStyleSheet(new_style)
 
 class MainMenu(QWidget):
+    
     def __init__(self):
         super().__init__()
         main_layout = QVBoxLayout()

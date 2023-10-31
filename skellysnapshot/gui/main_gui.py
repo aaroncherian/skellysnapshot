@@ -24,12 +24,12 @@ logging.basicConfig(
 class LayoutManager:
     def __init__(self):
         self.tab_widget = QTabWidget()
-    
         self.tab_indices = {}
 
     def register_tab(self, tab, name):
         tab_index = self.tab_widget.addTab(tab, name)
         self.tab_indices[name] = tab_index
+        
 
     # def initialize_layout(self):
     #     self.main_menu = MainMenu()
@@ -200,7 +200,7 @@ def runGUI():
 
     app = QApplication([])
     win = MainWindow()
-    app.setStyle('Fusion')
+    # app.setStyle('Fusion')
     app.setStyleSheet(stylesheet)
     win.show()
     app.exec()

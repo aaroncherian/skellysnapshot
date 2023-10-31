@@ -1,16 +1,55 @@
+
+/* QWidget{
+    background-color: #fb0000;
+}  */
+
+QWidget {
+    background-color: #494949;
+}
+
+QTabWidget::pane {
+    background-color: #4b4b4b;
+    /* border:1px solid #2f2f2f */
+    
+}
+QTabBar::tab {
+    background-color: #333232;
+    color: white;
+    border-right: 3px solid  rgb(32, 31, 31);
+    border-top: 3px solid  rgb(32, 31, 31);
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    
+    min-width: 8ex;
+    padding: 5px;
+    }
+
+QTabBar::tab:selected {
+        background-color: #494949;
+        border-bottom: 1px solid #494949;
+        }
+
+
+
+QMainWindow {
+    background-color: rgb(32, 31, 31);  /* Dark Gray */
+}
+
 /* Style for QLabel */
 QLabel {
     font-size: 14px;
     font-weight: bold;
+    color: white;
+    background-color: rgb(40, 40, 40);
     /* border: 1px solid red */
 }
-
 
 
 /* Style for Welcome label */
 QLabel#WelcomeLabel {
     font-size: 36px;
     font-variant: small-caps;
+    background-color:  #494949
 }
 
 
@@ -34,6 +73,10 @@ QGroupBox {
     background-color: rgb(40, 40, 40);  /* Background color */
 }
 
+QLabel#GroupboxLabel {
+    background-color: rgb(40, 40, 40);
+}
+
 QGroupBox:hover {
     border: 2px solid #00AEDC;
 }
@@ -46,12 +89,20 @@ QGroupBox {
     margin-top: 10px;
     padding: 20px;
     background-color: rgba(97, 95, 95, 0.5);  /* Background color */
-/* } */ */
+/* } */ 
 
 QToolTip {
     font-size: 12px;
     border: 1px solid #00e7a2;
     background-color: rgba(97, 95, 95, 0.8);
+}
+
+QPushButton {
+    background-color: #555555; /* Gray */
+    color: white; 
+    border: none;
+    padding: 5px;
+    border-radius: 3px;
 }
 
 QPushButton:hover {
