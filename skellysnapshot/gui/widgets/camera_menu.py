@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QLabel, QWidget, QVBoxLayout, QApplication, QPushBut
 import cv2
 import sys
 
+import numpy as np
 # class CalibrationWidget(QWidget):
 #     calibration_loaded = pyqtSignal(str)
 
@@ -31,13 +32,18 @@ import sys
 class VideoThread(QThread):
     change_pixmap_signal = pyqtSignal(QImage, int)
 
-    def __init__(self, camera_index):
+    def __init__(self, camera_index, resolution=(640, 480)):
         super().__init__()
         self.camera_index = camera_index
+        self.resolution = resolution
         self.latest_frame = None
 
     def run(self):
         cap = cv2.VideoCapture(self.camera_index)
+        # Set the resolution
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.resolution[0])
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.resolution[1])
+        
         while True:
             ret, frame = cap.read()
             if ret:
@@ -47,9 +53,6 @@ class VideoThread(QThread):
                 bytes_per_line = ch * w
                 qt_image = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format.Format_RGB888)
                 self.change_pixmap_signal.emit(qt_image, self.camera_index)
-
-    def capture_frame(self):
-        return self.latest_frame
 
 class CameraMenu(QWidget):
     snapshot_captured = pyqtSignal(dict)
@@ -65,7 +68,7 @@ class CameraMenu(QWidget):
         for i in range(num_cameras):
             self.labels[i] = QLabel(f'Camera {i}')
             layout.addWidget(self.labels[i])
-            thread = VideoThread(i)
+            thread = VideoThread(i, resolution=(320, 240))
             thread.change_pixmap_signal.connect(self.update_image)
             thread.start()
             self.threads.append(thread)  # Keep the reference
