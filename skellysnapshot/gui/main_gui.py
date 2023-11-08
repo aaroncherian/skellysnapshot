@@ -53,6 +53,9 @@ class LayoutManager:
     def switch_to_camera_tab(self):
         self.tab_widget.setCurrentIndex(self.tab_indices['Cameras'])
 
+    def switch_to_main_menu_tab(self):
+        self.tab_widget.setCurrentIndex(self.tab_indices['Main Menu'])
+
 class TaskManager(QObject):
     new_results_ready = pyqtSignal(object,object, object)
     def __init__(self, app_state):
@@ -153,6 +156,7 @@ class SnapshotGUI(QWidget):
     def connect_signals_to_slots(self):
         
         self.calibration_menu.calibration_toml_path_loaded.connect(self.calibration_manager.load_calibration_from_file)
+        self.calibration_menu.return_to_main_page_signal.connect(self.layout_manager.switch_to_main_menu_tab)
         self.camera_menu.snapshot_captured.connect(self.on_snapshot_captured_signal)
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
         self.main_menu.calibration_groupbox.clicked.connect(self.layout_manager.switch_to_calibration_tab)

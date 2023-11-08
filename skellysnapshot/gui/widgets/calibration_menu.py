@@ -26,7 +26,8 @@ class CalibrationManager:
 
 class CalibrationMenu(QWidget):
     calibration_toml_path_loaded = pyqtSignal(str)  # Signal emitted when a calibration file is loaded
-    
+    return_to_main_page_signal = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout()
@@ -34,6 +35,7 @@ class CalibrationMenu(QWidget):
         self.add_calibration_title_label(layout)
         self.add_calibration_object_label(layout)
         self.add_calibration_toml_groupbox(layout)
+        self.add_return_to_main_page_button(layout)
 
         spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         layout.addItem(spacer)
@@ -71,6 +73,15 @@ class CalibrationMenu(QWidget):
         toml_cal_layout.addWidget(self.button)
         toml_calibration_group.setLayout(toml_cal_layout)
         layout.addWidget(toml_calibration_group)
+
+    def add_return_to_main_page_button(self,layout):
+        self.button = QPushButton("Return to Main Page")
+        self.button.clicked.connect(self.return_to_main_page_signal)
+        layout.addWidget(self.button)
+
+    def emit_return_to_main_page_signal(self):
+        self.return_to_main_page_signal.emit()
+
 
 
     def load_calibration_file(self):
