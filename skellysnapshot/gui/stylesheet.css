@@ -39,11 +39,18 @@ QMainWindow {
 QLabel {
     font-size: 14px;
     font-weight: bold;
+    /* font-variant: small-caps; */
     color: white;
     background-color: rgb(40, 40, 40);
     /* border: 1px solid red */
 }
 
+
+QLabel#HeaderText {
+    font-size: 26px;
+    font-variant: small-caps;
+    background-color:  #494949
+}
 
 /* Style for Welcome label */
 QLabel#WelcomeLabel {
@@ -58,19 +65,26 @@ QLabel#CalibrationAdditionalInfoLabel {
     font-weight: normal;
     text-align: center;
 }
+
 /* Style for QGroupBox */
 QGroupBox {
     font-family: Helvetica, Arial,  sans-serif;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: bold;
-    text-transform: uppercase;
-    /* font-variant: small-caps; */
+    /* text-transform: uppercase; */
+    font-variant: small-caps;
     color: rgb(255, 255, 255);
     border: 1px solid rgb(49, 49, 49);
     border-radius: 10px;
     margin-top: 10px;
     padding: 10px;
     background-color: rgb(40, 40, 40);  /* Background color */
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin; /* The title is placed at the margin of the QGroupBox */
+    subcontrol-position: top left; /* The title is aligned at the top center */
+    padding: 0 3px; /* Spacing around the title text */
 }
 
 QLabel#GroupboxLabel {
