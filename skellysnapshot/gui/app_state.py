@@ -19,6 +19,9 @@ class AppState:
         self.process_enable_conditions = ProcessEnableConditions()
         self.subscribers = {'calibration': [], 'enable_processing': []}
 
+    def check_initial_calibration_state(self):
+        self.notify_subscribers("calibration", self.calibration_state)
+
     def update_calibration_state(self, calibration_object=None):
         if not isinstance(calibration_object, CameraGroup):
             logging.warning(f"Invalid calibration object type. Must be of type CameraGroup, but is of type {type(calibration_object)}")
