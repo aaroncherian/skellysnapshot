@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QWidget,QVBoxLayout, QPushButton, QGroupBox, QHBoxLa
 from PyQt6.QtGui import QImage, QPixmap
 
 from skellysnapshot.gui.widgets.skeleton_view_widget import SkeletonViewWidget
-from PyQt6.QtWidgets import QLabel, QDialog, QVBoxLayout, QGraphicsView, QGraphicsScene
+from PyQt6.QtWidgets import QLabel, QDialog, QVBoxLayout, QGraphicsView, QGraphicsScene,  QSizePolicy, QSpacerItem
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
@@ -46,9 +46,28 @@ class ResultsViewWidget(QWidget):
         super().__init__()
         layout = QHBoxLayout()
 
-        # Create a QGridLayout for the images
-        grid_layout = QGridLayout()
+        self.create_annotated_images_groupbox(layout, snapshot_data_2d)
+        self.create_skeleton_plot_groupbox(layout, snapshot_data_3d,snapshot_center_of_mass_data)
 
+        # self.create_skeleton_plot_groupbox(layout, snapshot_data_3d,snapshot_center_of_mass_data)
+        # skeleton_view = SkeletonViewWidget('3d plot')
+        # skeleton_view.setMinimumSize(600, 400)
+        # skeleton_view.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        # skeleton_view.plot_frame_of_3d_skeleton(snapshot_data_3d)
+        # skeleton_view.plot_center_of_mass(snapshot_center_of_mass_data)
+        # layout.addWidget(skeleton_view)
+
+        spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        layout.addItem(spacer)
+
+
+        self.setLayout(layout)
+
+
+    def create_annotated_images_groupbox(self, layout, snapshot_data_2d):
+        annotated_images_groupbox = QGroupBox("Annotated Images")
+        annotated_images_groupbox.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        annotated_images_layout = QGridLayout()
         row = 0
         col = 0
         
@@ -65,27 +84,35 @@ class ResultsViewWidget(QWidget):
 
             # Create a ClickableImageLabel to hold the image
             label = ClickableImageLabel(scaled_pixmap, original_pixmap)  # Pass both pixmaps
+            # label.setObjectName('ResultsAnnotatedImageLabel')
 
             # Add the label to the grid layout
-            grid_layout.addWidget(label, row, col)
+            annotated_images_layout.addWidget(label, row, col)
 
             # Update row and column for next image
             col += 1
             if col > 1:
                 col = 0
                 row += 1
+        
+        annotated_images_groupbox.setLayout(annotated_images_layout)
+        layout.addWidget(annotated_images_groupbox)
 
-        # Add the grid layout to the main layout
-        layout.addLayout(grid_layout)
 
-        skeleton_view = SkeletonViewWidget('3d plot')
-        skeleton_view.setMinimumSize(600, 600)
+    def create_skeleton_plot_groupbox(self, layout, snapshot_data_3d,snapshot_center_of_mass_data):
+        skeleton_plot_groupbox = QGroupBox("3D Reconstruction")
+        skeleton_plot_groupbox.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        skeleton_plot_layout = QVBoxLayout()
+
+        skeleton_view = SkeletonViewWidget()
+        skeleton_view.setMinimumSize(600, 400)
+        skeleton_view.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         skeleton_view.plot_frame_of_3d_skeleton(snapshot_data_3d)
         skeleton_view.plot_center_of_mass(snapshot_center_of_mass_data)
-        layout.addWidget(skeleton_view)
+        skeleton_plot_layout.addWidget(skeleton_view)
 
-        self.setLayout(layout)
-
+        skeleton_plot_groupbox.setLayout(skeleton_plot_layout)
+        layout.addWidget(skeleton_plot_groupbox)
 
 
 def add_snapshot_tab(tab_widget, snapshot_images, snapshot_data_3d):

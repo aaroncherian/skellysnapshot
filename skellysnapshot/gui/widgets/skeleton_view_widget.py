@@ -18,7 +18,7 @@ from skellysnapshot.visualize_3d.mediapipe_bone_connections import build_mediapi
 class SkeletonViewWidget(QWidget):
 
 
-    def __init__(self, plot_title:str):
+    def __init__(self, plot_title=None):
         super().__init__()
 
         self._layout = QVBoxLayout()
@@ -86,7 +86,8 @@ class SkeletonViewWidget(QWidget):
         fig = Mpl3DPlotCanvas(self, width=5, height=4, dpi=100)
         ax = fig.figure.axes[0]
 
-        ax.set_title(self.plot_title)
+        if self.plot_title:
+            ax.set_title(self.plot_title)
         return fig, ax
 
     def reset_skeleton_3d_plot(self):
