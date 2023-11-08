@@ -1,15 +1,9 @@
 import cv2
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QWidget,QVBoxLayout, QPushButton, QGroupBox, QHBoxLayout, QLabel, QGridLayout
-from PyQt6.QtGui import QImage, QPixmap
+from PySide6.QtGui import QImage, QPixmap, Qt
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QGraphicsView, QGraphicsScene, QWidget, QHBoxLayout, QGridLayout, \
+    QLabel
 
 from skellysnapshot.gui.widgets.skeleton_view_widget import SkeletonViewWidget
-from PyQt6.QtWidgets import QLabel, QDialog, QVBoxLayout, QGraphicsView, QGraphicsScene
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QLabel, QDialog, QVBoxLayout, QGraphicsView, QGraphicsScene
 
 class ClickableImageLabel(QLabel):
     def __init__(self, scaled_pixmap, original_pixmap):

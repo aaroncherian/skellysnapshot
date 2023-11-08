@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from skellysnapshot.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3d
+from skellysnapshot.backend.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3d
 from skellysnapshot.visualize_3d.mediapipe_bone_connections import build_mediapipe_skeleton
 
 

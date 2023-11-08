@@ -1,35 +1,14 @@
-from PyQt6.QtCore import pyqtSignal, QThread
-from PyQt6.QtGui import QImage, QPixmap
-from PyQt6.QtWidgets import QLabel, QWidget, QVBoxLayout, QApplication, QPushButton, QFileDialog
+
 import cv2
 import sys
 
-# class CalibrationWidget(QWidget):
-#     calibration_loaded = pyqtSignal(str)
+from PySide6.QtCore import QThread, Signal
+from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QApplication
 
-#     def __init__(self):
-#         super().__init__()
-#         layout = QVBoxLayout()
-
-#         self.label = QLabel("Calibration File: Not Loaded")
-#         layout.addWidget(self.label)
-
-#         self.button = QPushButton("Load Calibration File")
-#         self.button.clicked.connect(self.load_calibration_file)
-#         layout.addWidget(self.button)
-
-
-#         self.setLayout(layout)
-
-
-#     def load_calibration_file(self):
-#         filePath, _ = QFileDialog.getOpenFileName(self, "Load Calibration File", "", "TOML Files (*.toml);;All Files (*)")
-#         if filePath:
-#             self.label.setText(f"Calibration File: {filePath}")
-#             self.calibration_loaded.emit(filePath)
 
 class VideoThread(QThread):
-    change_pixmap_signal = pyqtSignal(QImage, int)
+    change_pixmap_signal = Signal(QImage, int)
 
     def __init__(self, camera_index):
         super().__init__()
@@ -52,8 +31,8 @@ class VideoThread(QThread):
         return self.latest_frame
 
 class CameraMenu(QWidget):
-    snapshot_captured = pyqtSignal(dict)
-    calibration_loaded = pyqtSignal(str)  # Add this line if you want to forward the signal
+    snapshot_captured = Signal(dict)
+    calibration_loaded = Signal(str)  # Add this line if you want to forward the signal
 
     def __init__(self, num_cameras=2):
         super().__init__()
@@ -100,6 +79,7 @@ class CameraMenu(QWidget):
             if frame is not None:
                 snapshot[f'cam_{i}'] = frame
         self.snapshot_captured.emit(snapshot)
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     main_menu = CameraMenu()

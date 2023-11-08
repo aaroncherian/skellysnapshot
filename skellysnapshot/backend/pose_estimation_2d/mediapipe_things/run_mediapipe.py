@@ -4,9 +4,9 @@ import mediapipe as mp
 import numpy as np
 from rich.progress import track
 
-from skellysnapshot.pose_estimation_2d.mediapipe_things.mediapipe_config import mediapipe_parameters
-from skellysnapshot.pose_estimation_2d.mediapipe_things.mediapipe_image_processing import process_image
-from skellysnapshot.pose_estimation_2d.snapshot_data_2d_dataclass import SnapshotData2d
+from skellysnapshot.backend.pose_estimation_2d.mediapipe_things.mediapipe_config import mediapipe_parameters
+from skellysnapshot.backend.pose_estimation_2d.mediapipe_things.mediapipe_image_processing import process_image
+from skellysnapshot.backend.pose_estimation_2d.snapshot_data_2d_dataclass import SnapshotData2d
 
 mp_holistic = mp.solutions.holistic
 

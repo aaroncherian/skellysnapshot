@@ -1,74 +1,19 @@
-from PyQt6.QtCore import Qt, QTimer
-from PyQt6.QtGui import QImage, QPixmap
-from PyQt6.QtWidgets import QApplication, QTabWidget, QMainWindow, QLabel, QVBoxLayout, QWidget, QHBoxLayout
+
 import sys
-import cv2
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
-
+from skellysnapshot.backend.calibration.anipose_object_loader import load_anipose_calibration_toml_from_path
 from skellysnapshot.cameras.camera_test import main
-from skellysnapshot.constants import TaskNames
-from skellysnapshot.task_worker_thread import TaskWorkerThread
-from skellysnapshot.calibration.anipose_object_loader import load_anipose_calibration_toml_from_path
-from skellysnapshot.visualize_3d.create_3d_figure import plot_frame_of_3d_skeleton
-from skellysnapshot.visualize_3d.skeleton_view_widget import SkeletonViewWidget
+from skellysnapshot.backend.constants import TaskNames
+from skellysnapshot.gui.main_window.initialization import initialize_gui, add_snapshot_tab
+from skellysnapshot.backend.task_worker_thread import TaskWorkerThread
 
-def initialize_gui():
-    app = QApplication(sys.argv)
-
-    window = QMainWindow()
-    window.setWindowTitle("Snapshot Viewer")
-    # window.setGeometry(200, 200, 800, 600)
-
-    tab_widget = QTabWidget()
-
-    window.setCentralWidget(tab_widget)
-    window.show()
-
-    return app, window, tab_widget
 
 # Function to add a new tab with the snapshot images
-def add_snapshot_tab(tab_widget, snapshot_images, snapshot_data_3d):
-    # Create a new tab widget
-    new_tab = QWidget()
-    main_layout = QHBoxLayout()
-
-    label_layout = QVBoxLayout()
-
-
-
-    for name, image in snapshot_images.items():
-        # Convert the image to be compatible with PyQt6
-        height, width, channel = image.shape
-        bytes_per_line = 3 * width
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        qt_image = QImage(image.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
-        pixmap = QPixmap.fromImage(qt_image)
-
-        # Create a QLabel to hold the image
-        label = QLabel()
-        label.setPixmap(pixmap)
-        label_layout.addWidget(label)
-
-    skeleton_view = SkeletonViewWidget('3d plot')
-    skeleton_view.setMinimumSize(600, 600)
-    skeleton_view.plot_frame_of_3d_skeleton(snapshot_data_3d)
-    main_layout.addLayout(label_layout)
-    main_layout.addWidget(skeleton_view)
-
-    main_layout.addLayout(label_layout)
-        
-
-    # Add the layout to the tab
-    new_tab.setLayout(main_layout)
-    new_tab.adjustSize()
-    new_tab_index = tab_widget.addTab(new_tab, f"Snapshot {tab_widget.count() + 1}")
-    tab_widget.setCurrentIndex(new_tab_index)
 
 
 class MyClass:
     def __init__(self):
+        self.snapshot2d_data = None
         self.snapshot3d_data = None
 
     def handle_all_tasks_completed(self, task_results: dict):
@@ -95,9 +40,6 @@ class MyClass:
         task_worker_thread.join()  # Wait for the thread to finish
 
         # plot_frame_of_3d_skeleton(snapshot_data_3d=self.snapshot3d_data)
-
-
-
 
 def my_snapshot_callback(snapshot, path_to_calibration_toml, tab_widget):
     my_class = MyClass()

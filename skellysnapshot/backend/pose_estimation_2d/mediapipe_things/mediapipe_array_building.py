@@ -1,7 +1,7 @@
 import numpy as np
 import mediapipe as mp
 
-from skellysnapshot.pose_estimation_2d.mediapipe_things.mediapipe_dataclass import MediapipeLandmarkData
+from skellysnapshot.backend.pose_estimation_2d.mediapipe_things.mediapipe_dataclass import MediapipeLandmarkData
 
 mp_holistic = mp.solutions.holistic
 

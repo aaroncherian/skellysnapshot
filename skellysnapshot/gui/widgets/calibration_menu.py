@@ -1,7 +1,7 @@
-from PyQt6.QtCore import pyqtSignal, QObject
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog, QSizePolicy, QGroupBox
+from PySide6.QtCore import Signal
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSizePolicy, QGroupBox, QPushButton, QFileDialog
 
-from skellysnapshot.calibration.freemocap_anipose import CameraGroup  # Import the type
+from skellysnapshot.backend.calibration.freemocap_anipose import CameraGroup  # Import the type
 
 from typing import Union
 from pathlib import Path
@@ -24,14 +24,15 @@ class CalibrationManager:
         self.app_state.update_calibration_state(self.anipose_calibration_object)
 
 class CalibrationMenu(QWidget):
-    calibration_toml_path_loaded = pyqtSignal(str)  # Signal emitted when a calibration file is loaded
+    calibration_toml_path_loaded = Signal(str)  # Signal emitted when a calibration file is loaded
     
     def __init__(self):
         super().__init__()
         layout = QVBoxLayout()
 
         self.calibration_object_label = QLabel("Calibration Object: Not Loaded")
-        self.calibration_object_label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)  # Set the size policy to Fixed
+        self.calibration_object_label.setSizePolicy(QSizePolicy.Policy.Fixed,
+                                                    QSizePolicy.Policy.Fixed)  # Set the size policy to Fixed
         layout.addWidget(self.calibration_object_label)
 
 

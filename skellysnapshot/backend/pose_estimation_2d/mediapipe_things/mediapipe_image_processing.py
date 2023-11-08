@@ -1,6 +1,6 @@
 import mediapipe as mp
 
-from skellysnapshot.pose_estimation_2d.mediapipe_things.mediapipe_array_building import \
+from skellysnapshot.backend.pose_estimation_2d.mediapipe_things.mediapipe_array_building import \
     convert_mediapipe_results_to_numpy_arrays
 
 mp_holistic = mp.solutions.holistic

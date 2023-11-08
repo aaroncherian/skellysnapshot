@@ -64,7 +64,7 @@ def main(snapshot_callback, settings_dict:dict):
 
 
 def snapshot_callback_test(snapshot):
-    print (snapshot.keys())
+    print(snapshot.keys())
 
 if __name__ == "__main__":
     settings_dict = {

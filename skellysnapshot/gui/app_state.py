@@ -1,4 +1,4 @@
-from skellysnapshot.calibration.freemocap_anipose import CameraGroup 
+from skellysnapshot.backend.calibration.freemocap_anipose import CameraGroup 
 import logging
 class CalibrationState:
     def __init__(self):

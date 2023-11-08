@@ -1,15 +1,14 @@
-
-from PyQt6.QtCore import pyqtSignal, QObject
-from PyQt6.QtWidgets import QMainWindow, QApplication, QTabWidget, QWidget, QVBoxLayout
+from PySide6.QtCore import QObject, Signal
+from PySide6.QtWidgets import QTabWidget, QWidget, QVBoxLayout, QMainWindow, QApplication
 
 from skellysnapshot.gui.widgets.main_menu import MainMenu
 from skellysnapshot.gui.widgets.camera_menu import CameraMenu
 from skellysnapshot.gui.widgets.results_widget import ResultsViewWidget
 from skellysnapshot.gui.widgets.calibration_menu import CalibrationMenu, CalibrationManager
-from skellysnapshot.main import MyClass
+from skellysnapshot.backend.snapshot_analyzer import SnapshotAnalyzer
 
-from skellysnapshot.task_worker_thread import TaskWorkerThread
-from skellysnapshot.constants import TaskNames
+from skellysnapshot.backend.task_worker_thread import TaskWorkerThread
+from skellysnapshot.backend.constants import TaskNames
 from skellysnapshot.gui.app_state import AppState
 
 
@@ -50,7 +49,7 @@ class LayoutManager:
         self.tab_widget.setCurrentIndex(self.tab_indices['Cameras'])
 
 class TaskManager(QObject):
-    new_results_ready = pyqtSignal(object,object, object)
+    new_results_ready = Signal(object,object, object)
     def __init__(self, app_state):
         super().__init__()
         self.app_state = app_state 
@@ -84,7 +83,7 @@ class TaskManager(QObject):
 
 
 
-class SnapshotGUI(QWidget):
+class SkellySnapshotMainWidget(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -159,105 +158,24 @@ class SnapshotGUI(QWidget):
         self.layout_manager.add_results_tab(snapshot2d_data, snapshot3d_data, snapshot_center_of_mass_data)
 
 
-class MainWindow(QMainWindow):
+class SkellySnapshotMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.snapshot_gui = SnapshotGUI()
+        self.snapshot_gui = SkellySnapshotMainWidget()
         self.setCentralWidget(self.snapshot_gui)
 
 
-# def runGUI():
-
-#     app = QApplication([])
-
-#     # Get screen size
-#     screen = app.primaryScreen()
-#     screen_size = screen.size() 
-
-#     win = MainWindow()
-#     win.show()
-
-#     # Set window size relative to screen size
-#     win.resize(screen_size.width() * 0.7, screen_size.height() * 0.7)
-
-#     app.exec()
-
 def run_analysis(snapshot, path_to_calibration_toml):
-    my_class = MyClass()
-    my_class.run(snapshot, path_to_calibration_toml)
+    snapshot_analyzer = SnapshotAnalyzer()
+    snapshot_analyzer.run(snapshot, path_to_calibration_toml)
 
-        # Assume snapshot_data is available here, replace with actual data
-    snapshot_images = my_class.snapshot2d_data.annotated_images
-    snapshot_data_3d = my_class.snapshot3d_data
+    # Assume snapshot_data is available here, replace with actual data
+    snapshot_images = snapshot_analyzer.snapshot2d_data.annotated_images
+    snapshot_data_3d = snapshot_analyzer.snapshot3d_data
 
     return snapshot_images, snapshot_data_3d
 
-def runGUI():
-
-    with open('skellysnapshot\gui\stylesheet.css', 'r') as f:
-        stylesheet = f.read()
-
-    app = QApplication([])
-    win = MainWindow()
-    # app.setStyle('Fusion')
-    app.setStyleSheet(stylesheet)
-    win.show()
-    app.exec()
-
-
-# def runGUI():
-#     app = QApplication([])
-
-#     # Get screen size
-#     screen = app.primaryScreen()
-#     screen_size = screen.size()
-
-#     win = MainWindow()
-#     win.show()
-
-#     # Set window size relative to screen size
-#     win.resize(screen_size.width() * 0.7, screen_size.height() * 0.7)
-    
-#     # Initialize SnapshotGUI and add it to MainWindow
-#     snapshot_gui = SnapshotGUI()
-#     win.setCentralWidget(snapshot_gui)
-    
-
-#     # Simulate adding multiple snapshots
-#     from pathlib import Path
-#     import cv2
-
-#     path_to_snapshot_images_folder = Path(r'C:\Users\aaron\Documents\HumonLab\SkellySnapshot\test_2')
-#     path_to_calibration_toml = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_12_49_06_calibration_3\sesh_2023-05-17_12_49_06_calibration_3_camera_calibration.toml")
-
-
-#     # # Initialize an empty dictionary to hold the camera images
-#     # snapshot = {}
-
-#     # # Loop through each file in the directory to read the images into the dictionary
-#     # for count, image_file in enumerate(path_to_snapshot_images_folder.iterdir()):
-#     #     if image_file.is_file() and image_file.suffix == '.jpg':  # or '.png' or whatever format you're using
-#     #         # Read the image using OpenCV (cv2.imread returns a NumPy array)
-#     #         image = cv2.imread(str(image_file))
-
-#     #         # Use the name of the file (without the extension) as the key, e.g., 'Cam_1'
-#     #         key = f'cam_{count}'
-
-#     #         # Add the image to the dictionary
-#     #         snapshot[key] = image
-    
-#     # snapshot_images, snapshot_data_3d = run_analysis(snapshot, path_to_calibration_toml)
-#     # snapshot_gui.process_snapshot(snapshot, path_to_calibration_toml)
-#     # snapshot_gui.add_results_tab(snapshot_images, snapshot_data_3d)
-#     # snapshot_gui.add_results_tab(snapshot2["image_data"], snapshot2["3d_data"])
 
 
 
-#     app.exec()
-
-
-
-
-if __name__ == "__main__":
-    runGUI()

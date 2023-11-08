@@ -1,8 +1,9 @@
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGroupBox, QHBoxLayout, QSizePolicy,QSpacerItem
+from PySide6.QtCore import Signal, Qt
+from PySide6.QtWidgets import QGroupBox, QLabel, QWidget, QVBoxLayout, QSizePolicy, QSpacerItem
+
 
 class HoverableClickableGroupBox(QGroupBox):
-    clicked = pyqtSignal()
+    clicked = Signal()
 
     def __init__(self, title):
         super().__init__(title)

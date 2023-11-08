@@ -2,11 +2,10 @@ from typing import Dict
 import numpy as np
 import threading
 
-from skellysnapshot.constants import TaskNames
-from skellysnapshot.pose_estimation_2d.mediapipe_things.run_mediapipe import run_mediapipe_detection
-from skellysnapshot.reconstruction_3d.reconstruct_3d import process_2d_data_to_3d
-from skellysnapshot.center_of_mass.calculate_center_of_mass import run_center_of_mass_calculations
-from skellysnapshot.visualize_3d.create_3d_figure import plot_frame_of_3d_skeleton
+from skellysnapshot.backend.constants import TaskNames
+from skellysnapshot.backend.pose_estimation_2d.mediapipe_things.run_mediapipe import run_mediapipe_detection
+from skellysnapshot.backend.reconstruction_3d.reconstruct_3d import process_2d_data_to_3d
+from skellysnapshot.backend.center_of_mass.calculate_center_of_mass import run_center_of_mass_calculations
 
 
 class TaskWorkerThread(threading.Thread):

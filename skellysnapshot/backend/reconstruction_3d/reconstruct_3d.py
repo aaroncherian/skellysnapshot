@@ -1,7 +1,7 @@
 import numpy as np
 
-from skellysnapshot.pose_estimation_2d.snapshot_data_2d_dataclass import SnapshotData2d
-from skellysnapshot.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3d
+from skellysnapshot.backend.pose_estimation_2d.snapshot_data_2d_dataclass import SnapshotData2d
+from skellysnapshot.backend.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3d
 
 
 def process_2d_data_to_3d(snapshot_data_2d: SnapshotData2d, anipose_calibration_object):

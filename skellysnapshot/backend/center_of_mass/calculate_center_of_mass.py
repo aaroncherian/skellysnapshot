@@ -1,10 +1,11 @@
-import logging
 from typing import List
 
 import numpy as np
 import pandas as pd
 from rich.progress import track
-from skellysnapshot.center_of_mass.center_of_mass_dataclass import CenterOfMassData
+
+from skellysnapshot.backend.center_of_mass.center_of_mass_dataclass import CenterOfMassData
+
 # from freemocap.core_processes.detecting_things_in_2d_images.mediapipe_stuff.data_models.mediapipe_skeleton_names_and_connections import (
 #     mediapipe_body_landmark_names,
 # )
