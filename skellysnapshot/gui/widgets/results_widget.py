@@ -1,5 +1,5 @@
 import cv2
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget,QVBoxLayout, QPushButton, QGroupBox, QHBoxLayout, QLabel, QGridLayout
 from PyQt6.QtGui import QImage, QPixmap
 
@@ -42,13 +42,14 @@ class ClickableImageLabel(QLabel):
 
 
 class ResultsViewWidget(QWidget):
+    return_to_snapshot_tab_signal = pyqtSignal()
     def __init__(self, snapshot_data_2d, snapshot_data_3d,snapshot_center_of_mass_data):
         super().__init__()
-        layout = QHBoxLayout()
+        layout = QVBoxLayout()
 
         self.create_annotated_images_groupbox(layout, snapshot_data_2d)
         self.create_skeleton_plot_groupbox(layout, snapshot_data_3d,snapshot_center_of_mass_data)
-
+        self.add_return_to_snapshot_tab_button(layout)
         # self.create_skeleton_plot_groupbox(layout, snapshot_data_3d,snapshot_center_of_mass_data)
         # skeleton_view = SkeletonViewWidget('3d plot')
         # skeleton_view.setMinimumSize(600, 400)
@@ -114,7 +115,15 @@ class ResultsViewWidget(QWidget):
         skeleton_plot_groupbox.setLayout(skeleton_plot_layout)
         layout.addWidget(skeleton_plot_groupbox)
 
+    def add_return_to_snapshot_tab_button(self,layout):
+        self.button = QPushButton("Take Another Snapshot")
+        self.button.clicked.connect(self.emit_return_to_snapshot_tab_signal)
+        layout.addWidget(self.button)
 
+    def emit_return_to_snapshot_tab_signal(self):
+        self.return_to_snapshot_tab_signal.emit()
+
+    
 def add_snapshot_tab(tab_widget, snapshot_images, snapshot_data_3d):
     # Create a new tab widget
     new_tab = QWidget()

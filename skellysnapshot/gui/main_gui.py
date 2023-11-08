@@ -25,6 +25,8 @@ class LayoutManager:
     def __init__(self):
         self.tab_widget = QTabWidget()
         self.tab_indices = {}
+        self.results_tab = None
+
 
     def register_tab(self, tab, name):
         tab_index = self.tab_widget.addTab(tab, name)
@@ -39,9 +41,11 @@ class LayoutManager:
     #     self.tab_widget.addTab(self.camera_tab, "Cameras")
 
     def add_results_tab(self, snapshot_2d_data, snapshot_3d_data, snapshot_center_of_mass_data):
-        results_tab = ResultsViewWidget(snapshot_2d_data, snapshot_3d_data,snapshot_center_of_mass_data)
-        new_tab_index = self.tab_widget.addTab(results_tab, f"Snapshot {self.tab_widget.count() + 1}")
+        self.results_tab = ResultsViewWidget(snapshot_2d_data, snapshot_3d_data,snapshot_center_of_mass_data)
+        new_tab_index = self.tab_widget.addTab(self.results_tab, f"Snapshot {self.tab_widget.count() + 1}")
         self.tab_widget.setCurrentIndex(new_tab_index)
+        self.results_tab.return_to_snapshot_tab_signal.connect(self.switch_to_camera_tab)
+
 
     def switch_to_calibration_tab(self):
         self.tab_widget.setCurrentIndex(self.tab_indices['Calibration'])
@@ -153,7 +157,6 @@ class SnapshotGUI(QWidget):
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
         self.main_menu.calibration_groupbox.clicked.connect(self.layout_manager.switch_to_calibration_tab)
         self.main_menu.process_snapshot_ready_group_box.clicked.connect(self.layout_manager.switch_to_camera_tab)
-
 
     def on_snapshot_captured_signal(self, snapshot):
         self.task_manager.process_snapshot(snapshot)
