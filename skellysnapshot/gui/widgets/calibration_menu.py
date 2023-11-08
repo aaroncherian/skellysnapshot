@@ -1,4 +1,4 @@
-from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt6.QtCore import pyqtSignal, Qt
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog, QSizePolicy, QGroupBox, QSpacerItem
 
 from skellysnapshot.calibration.freemocap_anipose import CameraGroup  # Import the type
@@ -31,12 +31,20 @@ class CalibrationMenu(QWidget):
         super().__init__()
         layout = QVBoxLayout()
 
+        self.add_calibration_title_label(layout)
         self.add_calibration_object_label(layout)
         self.add_calibration_toml_groupbox(layout)
 
         spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         layout.addItem(spacer)
         self.setLayout(layout)
+
+    def add_calibration_title_label(self,layout):
+        calibration_title_label = QLabel("Load in Your Calibration Here")
+        calibration_title_label.setObjectName("HeaderText")
+        calibration_title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        calibration_title_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        layout.addWidget(calibration_title_label)
 
     def add_calibration_object_label(self, layout):
         calibration_status_groupbox = QGroupBox("Calibration Status")
