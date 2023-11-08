@@ -6,6 +6,7 @@ from skellysnapshot.calibration.freemocap_anipose import CameraGroup  # Import t
 from typing import Union
 from pathlib import Path
 
+from skellysnapshot.constants import Colors
 class CalibrationManager:
     def __init__(self, app_state):
         self.anipose_calibration_object = None  # This will hold the actual calibration data
@@ -79,8 +80,10 @@ class CalibrationMenu(QWidget):
     def update_calibration_object_status(self, is_loaded):
         if is_loaded:
             self.calibration_object_label.setText("Calibration Object: Loaded")
+            self.calibration_object_label.setStyleSheet(f"color: {Colors.READY_COLOR.value};")
         else:
             self.calibration_object_label.setText("Calibration Object: Not Loaded")
+            self.calibration_object_label.setStyleSheet(f"color: {Colors.NOT_READY_COLOR.value};")
 
 
 
