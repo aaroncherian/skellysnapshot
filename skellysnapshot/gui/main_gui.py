@@ -110,6 +110,7 @@ class SnapshotGUI(QWidget):
         self.add_calibration_subscribers()
         self.add_enable_processing_subscribers()
 
+        self.app_state.check_enable_conditions()
         self.app_state.check_initial_calibration_state()
 
 
