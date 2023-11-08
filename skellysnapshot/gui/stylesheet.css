@@ -66,6 +66,10 @@ QLabel#CalibrationAdditionalInfoLabel {
     text-align: center;
 }
 
+QLabel#ExplanationLabel {
+    font-weight: normal;
+}
+
 /* Style for QGroupBox */
 QGroupBox {
     font-family: Helvetica, Arial,  sans-serif;
@@ -112,7 +116,7 @@ QToolTip {
 }
 
 QPushButton {
-    background-color: #2c2c2c; /* Gray */
+    background-color: #5a5959; /* Gray */
     color: white; 
     border: 1px solid #171717;
     padding: 5px;
