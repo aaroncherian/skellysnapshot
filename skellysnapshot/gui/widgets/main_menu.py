@@ -59,9 +59,21 @@ class MainMenu(QWidget):
         layout.addWidget(welcome_label)
 
     def add_general_info_groupbox(self, layout):
-        group_box = QGroupBox("General Information")
+        group_box = QGroupBox("SkellySnapshot: Instantaneous Motion Capture Feedback")
         group_box.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         group_layout = QVBoxLayout()
+
+        intro_label = QLabel()
+        intro_label.setObjectName('ExplanationLabel')
+        intro_text = """
+        <p>SkellySnapshot provides immediate, single-frame motion capture using standard webcams. 
+        It's designed for quick setup and rapid feedback, as a precursor to a full FreeMoCap recording. </p>
+        """
+        intro_label.setText(intro_text)
+        intro_label.setWordWrap(True)
+        intro_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        group_layout.addWidget(intro_label)
+    
         group_box.setLayout(group_layout)
         layout.addWidget(group_box)
 

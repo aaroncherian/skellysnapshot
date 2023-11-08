@@ -33,6 +33,7 @@ class CalibrationMenu(QWidget):
         layout = QVBoxLayout()
 
         self.add_calibration_title_label(layout)
+        self.add_calibration_explanation_groupbox(layout)
         self.add_calibration_object_label(layout)
         self.add_calibration_toml_groupbox(layout)
         self.add_return_to_main_page_button(layout)
@@ -47,6 +48,30 @@ class CalibrationMenu(QWidget):
         calibration_title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         calibration_title_label.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         layout.addWidget(calibration_title_label)
+
+    def add_calibration_explanation_groupbox(self, layout):
+
+        calibration_explanation_groupbox = QGroupBox("About Camera Calibration")
+        calibration_explanation_groupbox.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        calibration_explanation_layout = QVBoxLayout()
+
+        calibration_explanation_label = QLabel()
+        calibration_explanation_label.setObjectName('ExplanationLabel')
+
+        calibration_explanation_text = """
+        <p><strong>About Camera Calibration:</strong>
+        <p>Here, you can load the pre-calculated calibration data from a TOML file, which contains the necessary parameters for each camera that has been previously calibrated using a ChArUco board.</p>
+        <p>Camera calibration is a crucial step in ensuring the accuracy of 3D reconstructions. It involves determining the intrinsic lens distortions and the extrinsic spatial positions and orientations of each camera.</p>
+
+        """
+        calibration_explanation_label.setText(calibration_explanation_text)
+        calibration_explanation_label.setWordWrap(True)
+        calibration_explanation_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        calibration_explanation_layout.addWidget(calibration_explanation_label)
+
+        calibration_explanation_groupbox.setLayout(calibration_explanation_layout)
+        layout.addWidget(calibration_explanation_groupbox)
+
 
     def add_calibration_object_label(self, layout):
         calibration_status_groupbox = QGroupBox("Calibration Status")
