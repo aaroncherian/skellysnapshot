@@ -1,6 +1,8 @@
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGroupBox, QHBoxLayout, QSizePolicy,QSpacerItem
 
+from skellysnapshot.constants import Colors
+
 class HoverableClickableGroupBox(QGroupBox):
     clicked = pyqtSignal()
 
@@ -74,7 +76,7 @@ class MainMenu(QWidget):
 
         self.calibration_status_label = QLabel(self.not_loaded_text)
         self.calibration_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.calibration_status_label.setStyleSheet("color: orange;")
+        self.calibration_status_label.setStyleSheet(f"color: {Colors.NOT_READY_COLOR.value};")
         self.calibration_additional_info_label = QLabel(self.not_loaded_additional_info)
         self.calibration_additional_info_label.setObjectName("CalibrationAdditionalInfoLabel")
 
@@ -87,11 +89,11 @@ class MainMenu(QWidget):
     def update_calibration_status(self, is_loaded):
         if is_loaded:
             self.calibration_status_label.setText("Loaded")
-            self.calibration_status_label.setStyleSheet("color: #00AEDC;")
+            self.calibration_status_label.setStyleSheet(f"color: {Colors.READY_COLOR.value};")
             self.calibration_additional_info_label.setText('Loaded from .toml file')  
         else:
             self.calibration_status_label.setText(self.not_loaded_text)
-            self.calibration_status_label.setStyleSheet("color: #FD5400;")
+            self.calibration_status_label.setStyleSheet(f"color: {Colors.NOT_READY_COLOR.value};")
             self.calibration_additional_info_label.setText(self.not_loaded_additional_info)
 
     def add_process_snapshot_ready_groupbox(self, layout):
@@ -103,7 +105,7 @@ class MainMenu(QWidget):
         self.not_ready_text = 'Not Ready'
         self.process_ready_status_label = QLabel(self.not_ready_text)
         self.process_ready_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.process_ready_status_label.setStyleSheet("color: orange;")
+        self.process_ready_status_label.setStyleSheet(f"color: {Colors.NOT_READY_COLOR.value};")
 
         group_layout.addWidget(self.process_ready_status_label)
         self.process_snapshot_ready_group_box.setLayout(group_layout)
@@ -113,7 +115,7 @@ class MainMenu(QWidget):
     def update_process_snapshot_ready_status(self, is_ready):
         if is_ready:
             self.process_ready_status_label.setText("Ready")
-            self.process_ready_status_label.setStyleSheet("color: #00AEDC;")
+            self.process_ready_status_label.setStyleSheet(f"color: {Colors.READY_COLOR.value};")
         else:
             self.process_ready_status_label.setText(self.not_ready_text)
-            self.process_ready_status_label.setStyleSheet("color: #FD5400;")
+            self.process_ready_status_label.setStyleSheet(f"color: {Colors.NOT_READY_COLOR.value};")
