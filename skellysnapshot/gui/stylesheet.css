@@ -112,7 +112,7 @@ QToolTip {
 }
 
 QPushButton {
-    background-color: #555555; /* Gray */
+    background-color: #3f3f3f; /* Gray */
     color: white; 
     border: none;
     padding: 5px;
