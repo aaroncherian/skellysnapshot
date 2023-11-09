@@ -24,6 +24,8 @@ class LayoutManager:
     def __init__(self):
         self.tab_widget = QTabWidget()
         self.tab_indices = {}
+        self.results_tab = None
+
 
     def register_tab(self, tab, name):
         tab_index = self.tab_widget.addTab(tab, name)
@@ -38,15 +40,20 @@ class LayoutManager:
     #     self.tab_widget.addTab(self.camera_tab, "Cameras")
 
     def add_results_tab(self, snapshot_2d_data, snapshot_3d_data, snapshot_center_of_mass_data):
-        results_tab = ResultsViewWidget(snapshot_2d_data, snapshot_3d_data,snapshot_center_of_mass_data)
-        new_tab_index = self.tab_widget.addTab(results_tab, f"Snapshot {self.tab_widget.count() + 1}")
+        self.results_tab = ResultsViewWidget(snapshot_2d_data, snapshot_3d_data,snapshot_center_of_mass_data)
+        new_tab_index = self.tab_widget.addTab(self.results_tab, f"Snapshot {self.tab_widget.count() + 1}")
         self.tab_widget.setCurrentIndex(new_tab_index)
+        self.results_tab.return_to_snapshot_tab_signal.connect(self.switch_to_camera_tab)
+
 
     def switch_to_calibration_tab(self):
         self.tab_widget.setCurrentIndex(self.tab_indices['Calibration'])
 
     def switch_to_camera_tab(self):
         self.tab_widget.setCurrentIndex(self.tab_indices['Cameras'])
+
+    def switch_to_main_menu_tab(self):
+        self.tab_widget.setCurrentIndex(self.tab_indices['Main Menu'])
 
 class TaskManager(QObject):
     new_results_ready = Signal(object,object, object)
@@ -109,6 +116,9 @@ class SkellySnapshotMainWidget(QWidget):
         self.add_calibration_subscribers()
         self.add_enable_processing_subscribers()
 
+        self.app_state.check_enable_conditions()
+        self.app_state.check_initial_calibration_state()
+
 
         # self.connect_signals_to_event_bus()
 
@@ -145,11 +155,11 @@ class SkellySnapshotMainWidget(QWidget):
     def connect_signals_to_slots(self):
         
         self.calibration_menu.calibration_toml_path_loaded.connect(self.calibration_manager.load_calibration_from_file)
+        self.calibration_menu.return_to_main_page_signal.connect(self.layout_manager.switch_to_main_menu_tab)
         self.camera_menu.snapshot_captured.connect(self.on_snapshot_captured_signal)
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
         self.main_menu.calibration_groupbox.clicked.connect(self.layout_manager.switch_to_calibration_tab)
         self.main_menu.process_snapshot_ready_group_box.clicked.connect(self.layout_manager.switch_to_camera_tab)
-
 
     def on_snapshot_captured_signal(self, snapshot):
         self.task_manager.process_snapshot(snapshot)

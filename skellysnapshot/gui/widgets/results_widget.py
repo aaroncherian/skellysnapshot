@@ -1,9 +1,15 @@
 import cv2
-from PySide6.QtGui import QImage, QPixmap, Qt
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QGraphicsView, QGraphicsScene, QWidget, QHBoxLayout, QGridLayout, \
-    QLabel
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtWidgets import QWidget,QVBoxLayout, QPushButton, QGroupBox, QHBoxLayout, QLabel, QGridLayout
+from PyQt6.QtGui import QImage, QPixmap
 
 from skellysnapshot.gui.widgets.skeleton_view_widget import SkeletonViewWidget
+from PyQt6.QtWidgets import QLabel, QDialog, QVBoxLayout, QGraphicsView, QGraphicsScene,  QSizePolicy, QSpacerItem
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPixmap
+from PyQt6.QtWidgets import QLabel, QDialog, QVBoxLayout, QGraphicsView, QGraphicsScene
 
 class ClickableImageLabel(QLabel):
     def __init__(self, scaled_pixmap, original_pixmap):
@@ -36,12 +42,53 @@ class ClickableImageLabel(QLabel):
 
 
 class ResultsViewWidget(QWidget):
+    return_to_snapshot_tab_signal = pyqtSignal()
     def __init__(self, snapshot_data_2d, snapshot_data_3d,snapshot_center_of_mass_data):
         super().__init__()
-        layout = QHBoxLayout()
+        layout = QVBoxLayout()
 
-        # Create a QGridLayout for the images
-        grid_layout = QGridLayout()
+        self.create_annotated_images_groupbox(layout, snapshot_data_2d)
+        self.create_skeleton_plot_groupbox(layout, snapshot_data_3d,snapshot_center_of_mass_data)
+        self.add_return_to_snapshot_tab_button(layout)
+        # self.create_skeleton_plot_groupbox(layout, snapshot_data_3d,snapshot_center_of_mass_data)
+        # skeleton_view = SkeletonViewWidget('3d plot')
+        # skeleton_view.setMinimumSize(600, 400)
+        # skeleton_view.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        # skeleton_view.plot_frame_of_3d_skeleton(snapshot_data_3d)
+        # skeleton_view.plot_center_of_mass(snapshot_center_of_mass_data)
+        # layout.addWidget(skeleton_view)
+
+        spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        layout.addItem(spacer)
+
+
+        self.setLayout(layout)
+
+
+    def create_annotated_images_groupbox(self, layout, snapshot_data_2d):
+        annotated_images_groupbox = QGroupBox("Annotated Images")
+        annotated_images_groupbox.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+
+        # This is the overall layout for the group box
+        groupbox_layout = QVBoxLayout()
+
+        # Create the explanatory label
+        explanation_label = QLabel()
+        explanation_label.setObjectName('ExplanationLabel')
+        refined_explanation_text = """
+        <p><strong>Annotated Camera Images:</strong><br>
+        The images below are captured snapshots from each camera setup. They have been processed through the MediaPipe pose estimation algorithm to identify and track joint positions in two dimensions. The detected joints are illustrated with overlaid markers.</p>
+        <p>To examine the details, please <strong>click on any image to enlarge it.</strong></p>
+        """
+        explanation_label.setText(refined_explanation_text)
+        explanation_label.setWordWrap(True)
+        explanation_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        
+        # Add the explanatory label to the group box's overall layout
+        groupbox_layout.addWidget(explanation_label)
+
+        # Create a grid layout for the images
+        images_layout = QGridLayout()
 
         row = 0
         col = 0
@@ -52,36 +99,75 @@ class ResultsViewWidget(QWidget):
             bytes_per_line = 3 * width
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             qt_image = QImage(image.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
-            original_pixmap = QPixmap.fromImage(qt_image)  # Store the original QPixmap
+            original_pixmap = QPixmap.fromImage(qt_image)
 
             # Scale the pixmap
             scaled_pixmap = original_pixmap.scaled(300, 300, Qt.AspectRatioMode.KeepAspectRatio)
 
             # Create a ClickableImageLabel to hold the image
-            label = ClickableImageLabel(scaled_pixmap, original_pixmap)  # Pass both pixmaps
+            image_label = ClickableImageLabel(scaled_pixmap, original_pixmap)  # Pass both pixmaps
 
             # Add the label to the grid layout
-            grid_layout.addWidget(label, row, col)
+            images_layout.addWidget(image_label, row, col)
 
             # Update row and column for next image
             col += 1
-            if col > 1:
+            if col > 1:  # Assuming 2 columns here, adjust as needed
                 col = 0
                 row += 1
 
-        # Add the grid layout to the main layout
-        layout.addLayout(grid_layout)
+        # Add the grid layout to the group box's overall layout
+        groupbox_layout.addLayout(images_layout)
 
-        skeleton_view = SkeletonViewWidget('3d plot')
-        skeleton_view.setMinimumSize(600, 600)
+        # Set the group box's layout to the QVBoxLayout
+        annotated_images_groupbox.setLayout(groupbox_layout)
+
+        # Add the group box to the parent layout
+        layout.addWidget(annotated_images_groupbox)
+
+
+
+    def create_skeleton_plot_groupbox(self, layout, snapshot_data_3d, snapshot_center_of_mass_data):
+        skeleton_plot_groupbox = QGroupBox("3D Reconstruction")
+        skeleton_plot_groupbox.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        skeleton_plot_layout = QVBoxLayout()
+
+        explanation_label = QLabel()
+        explanation_label.setObjectName('ExplanationLabel')
+        explanation_text = """
+        <p><strong>3D Skeletal Reconstruction:</strong><br>
+        This visualization represents the 3D reconstruction of the subject's pose, as captured from multiple camera angles. The system triangulates the position of each joint in three-dimensional space. Total body center of mass is also calculated and displayed.</p>
+        <p>Explore the model by rotating and zooming in on the plot to study the pose in detail.</p>
+        """
+        explanation_label.setText(explanation_text)
+        explanation_label.setWordWrap(True)
+        explanation_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+
+        skeleton_plot_layout.addWidget(explanation_label)
+
+        skeleton_view = SkeletonViewWidget()
+        skeleton_view.setMinimumSize(600, 400)
+        skeleton_view.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         skeleton_view.plot_frame_of_3d_skeleton(snapshot_data_3d)
         skeleton_view.plot_center_of_mass(snapshot_center_of_mass_data)
-        layout.addWidget(skeleton_view)
+        skeleton_plot_layout.addWidget(skeleton_view)
 
-        self.setLayout(layout)
+        # Add the explanatory text label under the 3D plot
 
 
+        skeleton_plot_groupbox.setLayout(skeleton_plot_layout)
+        layout.addWidget(skeleton_plot_groupbox)
 
+
+    def add_return_to_snapshot_tab_button(self,layout):
+        self.button = QPushButton("Take Another Snapshot")
+        self.button.clicked.connect(self.emit_return_to_snapshot_tab_signal)
+        layout.addWidget(self.button)
+
+    def emit_return_to_snapshot_tab_signal(self):
+        self.return_to_snapshot_tab_signal.emit()
+
+    
 def add_snapshot_tab(tab_widget, snapshot_images, snapshot_data_3d):
     # Create a new tab widget
     new_tab = QWidget()

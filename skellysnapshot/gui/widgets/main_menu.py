@@ -2,6 +2,8 @@ from PySide6.QtCore import Signal, Qt
 from PySide6.QtWidgets import QGroupBox, QLabel, QWidget, QVBoxLayout, QSizePolicy, QSpacerItem
 
 
+from skellysnapshot.constants import Colors
+
 class HoverableClickableGroupBox(QGroupBox):
     clicked = Signal()
 
@@ -58,9 +60,21 @@ class MainMenu(QWidget):
         layout.addWidget(welcome_label)
 
     def add_general_info_groupbox(self, layout):
-        group_box = QGroupBox("General Information")
+        group_box = QGroupBox("SkellySnapshot: Instantaneous Motion Capture Feedback")
         group_box.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         group_layout = QVBoxLayout()
+
+        intro_label = QLabel()
+        intro_label.setObjectName('ExplanationLabel')
+        intro_text = """
+        <p>SkellySnapshot provides immediate, single-frame motion capture using standard webcams. 
+        It's designed for quick setup and rapid feedback, as a precursor to a full FreeMoCap recording. </p>
+        """
+        intro_label.setText(intro_text)
+        intro_label.setWordWrap(True)
+        intro_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
+        group_layout.addWidget(intro_label)
+    
         group_box.setLayout(group_layout)
         layout.addWidget(group_box)
 
@@ -75,7 +89,6 @@ class MainMenu(QWidget):
 
         self.calibration_status_label = QLabel(self.not_loaded_text)
         self.calibration_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.calibration_status_label.setStyleSheet("color: orange;")
         self.calibration_additional_info_label = QLabel(self.not_loaded_additional_info)
         self.calibration_additional_info_label.setObjectName("CalibrationAdditionalInfoLabel")
 
@@ -88,11 +101,11 @@ class MainMenu(QWidget):
     def update_calibration_status(self, is_loaded):
         if is_loaded:
             self.calibration_status_label.setText("Loaded")
-            self.calibration_status_label.setStyleSheet("color: #00AEDC;")
+            self.calibration_status_label.setStyleSheet(f"color: {Colors.READY_COLOR.value};")
             self.calibration_additional_info_label.setText('Loaded from .toml file')  
         else:
             self.calibration_status_label.setText(self.not_loaded_text)
-            self.calibration_status_label.setStyleSheet("color: #FD5400;")
+            self.calibration_status_label.setStyleSheet(f"color: {Colors.NOT_READY_COLOR.value};")
             self.calibration_additional_info_label.setText(self.not_loaded_additional_info)
 
     def add_process_snapshot_ready_groupbox(self, layout):
@@ -104,7 +117,6 @@ class MainMenu(QWidget):
         self.not_ready_text = 'Not Ready'
         self.process_ready_status_label = QLabel(self.not_ready_text)
         self.process_ready_status_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.process_ready_status_label.setStyleSheet("color: orange;")
 
         group_layout.addWidget(self.process_ready_status_label)
         self.process_snapshot_ready_group_box.setLayout(group_layout)
@@ -114,7 +126,7 @@ class MainMenu(QWidget):
     def update_process_snapshot_ready_status(self, is_ready):
         if is_ready:
             self.process_ready_status_label.setText("Ready")
-            self.process_ready_status_label.setStyleSheet("color: #00AEDC;")
+            self.process_ready_status_label.setStyleSheet(f"color: {Colors.READY_COLOR.value};")
         else:
             self.process_ready_status_label.setText(self.not_ready_text)
-            self.process_ready_status_label.setStyleSheet("color: #FD5400;")
+            self.process_ready_status_label.setStyleSheet(f"color: {Colors.NOT_READY_COLOR.value};")
