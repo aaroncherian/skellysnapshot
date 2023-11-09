@@ -30,7 +30,7 @@ class VideoThread(QThread):
         return self.latest_frame
 
 
-class CameraMenu(QWidget):
+class old_CameraMenu(QWidget):
     snapshot_captured = Signal(dict)
     calibration_loaded = Signal(str)  # Add this line if you want to forward the signal
 
@@ -83,6 +83,6 @@ class CameraMenu(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    main_menu = CameraMenu()
+    main_menu = old_CameraMenu()
     main_menu.show()
     sys.exit(app.exec())

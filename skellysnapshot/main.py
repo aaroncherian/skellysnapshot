@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QApplication
 
-from skellysnapshot.gui.gui_main import SkellySnapshotMainWindow
+from skellysnapshot.gui.main_window.main_window import SkellySnapshotMainWindow
 
 if __name__ == "__main__":
     with open('./gui/stylesheet.css', 'r') as f:

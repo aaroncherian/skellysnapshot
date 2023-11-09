@@ -17,7 +17,7 @@ class ProcessEnableConditions:
         }
 
 
-class AppState:
+class AppStateManager:
     def __init__(self):
         self.calibration_state = CalibrationState()
         self.process_enable_conditions = ProcessEnableConditions()

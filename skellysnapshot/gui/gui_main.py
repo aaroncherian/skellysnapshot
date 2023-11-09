@@ -1,100 +1,23 @@
-import logging
+from PySide6.QtWidgets import QWidget, QVBoxLayout
 
-from PySide6.QtCore import QObject, Signal
-from PySide6.QtWidgets import QTabWidget, QWidget, QVBoxLayout, QMainWindow
-
-from skellysnapshot.backend.constants import TaskNames
-from skellysnapshot.backend.snapshot_analyzer import SnapshotAnalyzer
-from skellysnapshot.backend.task_worker_thread import TaskWorkerThread
-from skellysnapshot.gui.app_state import AppState
+from skellysnapshot.gui.helpers.app_state_manager import AppStateManager
+from skellysnapshot.gui.helpers.layout_manager import LayoutManager
 from skellysnapshot.gui.widgets.calibration_menu import CalibrationMenu, CalibrationManager
 from skellysnapshot.gui.widgets.main_menu import MainMenu
-from skellysnapshot.gui.widgets.results_widget import ResultsViewWidget
 from skellysnapshot.gui.widgets.skellycam_camera_menu import SkellyCameraMenu
+from skellysnapshot.gui.helpers.task_manager import TaskManager
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s || %(levelname)s || %(funcName)s || %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-
-
-class LayoutManager:
-    def __init__(self):
-        self.tab_widget = QTabWidget()
-        self.tab_indices = {}
-        self.results_tab = None
-
-    def register_tab(self, tab, name):
-        tab_index = self.tab_widget.addTab(tab, name)
-        self.tab_indices[name] = tab_index
-
-    # def initialize_layout(self):
-    #     self.main_menu = MainMenu()
-    #     self.tab_widget.addTab(self.main_menu, "Main Menu")
-
-    #     self.camera_tab = CameraMenu()
-    #     self.tab_widget.addTab(self.camera_tab, "Cameras")
-
-    def add_results_tab(self, snapshot_2d_data, snapshot_3d_data, snapshot_center_of_mass_data):
-        self.results_tab = ResultsViewWidget(snapshot_2d_data, snapshot_3d_data, snapshot_center_of_mass_data)
-        new_tab_index = self.tab_widget.addTab(self.results_tab, f"Snapshot {self.tab_widget.count() + 1}")
-        self.tab_widget.setCurrentIndex(new_tab_index)
-        self.results_tab.return_to_snapshot_tab_signal.connect(self.switch_to_camera_tab)
-
-    def switch_to_calibration_tab(self):
-        self.tab_widget.setCurrentIndex(self.tab_indices['Calibration'])
-
-    def switch_to_camera_tab(self):
-        self.tab_widget.setCurrentIndex(self.tab_indices['Cameras'])
-
-    def switch_to_main_menu_tab(self):
-        self.tab_widget.setCurrentIndex(self.tab_indices['Main Menu'])
-
-
-class TaskManager(QObject):
-    new_results_ready = Signal(object, object, object)
-
-    def __init__(self, app_state):
-        super().__init__()
-        self.app_state = app_state
-        self.anipose_calibration_object = None
-
-    def set_anipose_calibration_object(self, calibration_state):
-        self.anipose_calibration_object = calibration_state.calibration_object
-        print(f'Calibration {self.anipose_calibration_object} loaded into task manager')
-
-    def process_snapshot(self, snapshot):
-        if self.anipose_calibration_object is None:
-            print("Calibration object not loaded.")
-            return
-
-        task_worker_thread = TaskWorkerThread(
-            snapshot=snapshot,
-            anipose_calibration_object=self.anipose_calibration_object,
-            task_queue=[TaskNames.TASK_RUN_MEDIAPIPE, TaskNames.TASK_RUN_3D_RECONSTRUCTION,
-                        TaskNames.TASK_CALCULATE_CENTER_OF_MASS],
-            task_running_callback=None,
-            task_completed_callback=None,
-            all_tasks_completed_callback=self.handle_all_tasks_completed
-        )
-        task_worker_thread.start()
-
-    def handle_all_tasks_completed(self, task_results: dict):
-        self.snapshot2d_data = task_results[TaskNames.TASK_RUN_MEDIAPIPE]['result']
-        self.snapshot3d_data = task_results[TaskNames.TASK_RUN_3D_RECONSTRUCTION]['result']
-        self.snapshot_center_of_mass_data = task_results[TaskNames.TASK_CALCULATE_CENTER_OF_MASS]['result']
-        self.new_results_ready.emit(self.snapshot2d_data, self.snapshot3d_data, self.snapshot_center_of_mass_data)
-
+import logging
+logger = logging.getLogger(__name__)
 
 class SkellySnapshotMainWidget(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
 
-        self.app_state = AppState()
+        self.app_state_manager = AppStateManager()
 
         self.main_menu = MainMenu()
-        self.camera_menu = SkellyCameraMenu()
+        self.camera_menu = SkellyCameraMenu(parent=self)
         self.calibration_menu = CalibrationMenu()
 
         self.layout_manager = LayoutManager()
@@ -103,8 +26,8 @@ class SkellySnapshotMainWidget(QWidget):
         self.layout_manager.register_tab(self.camera_menu, "Cameras")
         self.layout_manager.register_tab(self.calibration_menu, "Calibration")
 
-        self.task_manager = TaskManager(self.app_state)
-        self.calibration_manager = CalibrationManager(self.app_state)
+        self.task_manager = TaskManager(self.app_state_manager)
+        self.calibration_manager = CalibrationManager(self.app_state_manager)
 
         layout = QVBoxLayout()
         # self.layout_manager.initialize_layout()
@@ -113,8 +36,8 @@ class SkellySnapshotMainWidget(QWidget):
         self.add_calibration_subscribers()
         self.add_enable_processing_subscribers()
 
-        self.app_state.check_enable_conditions()
-        self.app_state.check_initial_calibration_state()
+        self.app_state_manager.check_enable_conditions()
+        self.app_state_manager.check_initial_calibration_state()
 
         # self.connect_signals_to_event_bus()
 
@@ -127,7 +50,7 @@ class SkellySnapshotMainWidget(QWidget):
         ]
 
         for subscriber in enable_processing_subscribers:
-            self.app_state.subscribe("enable_processing", subscriber)
+            self.app_state_manager.subscribe("enable_processing", subscriber)
 
     def check_enable_conditions(self, all_conditions_met):
         if all_conditions_met:
@@ -139,14 +62,14 @@ class SkellySnapshotMainWidget(QWidget):
         calibration_subscribers = [
             self.task_manager.set_anipose_calibration_object,
             # self.check_enable_conditions,
-            lambda state: self.app_state.update_button_enable_conditions('calibration_loaded',
-                                                                         state.status == "LOADED"),
+            lambda state: self.app_state_manager.update_button_enable_conditions('calibration_loaded',
+                                                                                 state.status == "LOADED"),
             lambda state: self.main_menu.update_calibration_status(state.status == "LOADED"),
             lambda state: self.calibration_menu.update_calibration_object_status(state.status == "LOADED")
         ]
 
         for subscriber in calibration_subscribers:
-            self.app_state.subscribe("calibration", subscriber)
+            self.app_state_manager.subscribe("calibration", subscriber)
 
     def connect_signals_to_slots(self):
 
@@ -164,20 +87,10 @@ class SkellySnapshotMainWidget(QWidget):
         self.layout_manager.add_results_tab(snapshot2d_data, snapshot3d_data, snapshot_center_of_mass_data)
 
 
-class SkellySnapshotMainWindow(QMainWindow):
-    def __init__(self):
-        super().__init__()
+    def closeEvent(self, event):
+        logger.info("Close event received - closing SkellySnapshotMainWidget....")
+        self.camera_menu.close()
 
-        self.snapshot_gui = SkellySnapshotMainWidget()
-        self.setCentralWidget(self.snapshot_gui)
-
-
-def run_analysis(snapshot, path_to_calibration_toml):
-    snapshot_analyzer = SnapshotAnalyzer()
-    snapshot_analyzer.run(snapshot, path_to_calibration_toml)
-
-    # Assume snapshot_data is available here, replace with actual data
-    snapshot_images = snapshot_analyzer.snapshot2d_data.annotated_images
-    snapshot_data_3d = snapshot_analyzer.snapshot3d_data
-
-    return snapshot_images, snapshot_data_3d
+    def close(self):
+        logger.info(f"Running `close` method (presumably called by parent: - closing SkellySnapshotMainWidget....")
+        self.camera_menu.close()
