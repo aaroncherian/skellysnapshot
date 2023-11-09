@@ -11,19 +11,17 @@ from skellysnapshot.backend.pose_estimation_2d.snapshot_data_2d_dataclass import
 mp_holistic = mp.solutions.holistic
 
 
-
 def run_mediapipe_detection(snapshot: Dict[str, np.ndarray]):
-
     XY_data_for_all_cameras_list = []
     visibility_data_for_all_cameras_list = []
     annotated_images = {}
 
     holistic_tracker = mp_holistic.Holistic(
-    model_complexity=mediapipe_parameters['model_complexity'],
-    min_detection_confidence=mediapipe_parameters['min_detection_confidence'],
-    min_tracking_confidence=mediapipe_parameters['min_tracking_confidence'],
-    static_image_mode=mediapipe_parameters['static_image_mode'],
-)
+        model_complexity=mediapipe_parameters['model_complexity'],
+        min_detection_confidence=mediapipe_parameters['min_detection_confidence'],
+        min_tracking_confidence=mediapipe_parameters['min_tracking_confidence'],
+        static_image_mode=mediapipe_parameters['static_image_mode'],
+    )
 
     for cam_key, image in track(snapshot.items(), description='Mediapiping'):
         # Process the image and get the landmark data and annotated image
@@ -67,7 +65,7 @@ if __name__ == '__main__':
             snapshot[key] = image
 
     snapshot_data_2d = run_mediapipe_detection(snapshot)
-    
+
     for cam_key, annotated_img in snapshot_data_2d.annotated_images.items():
         cv2.imshow(f'Annotated Image from {cam_key}', annotated_img)
         cv2.waitKey(0)

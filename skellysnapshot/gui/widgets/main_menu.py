@@ -30,8 +30,9 @@ class HoverableClickableGroupBox(QGroupBox):
             new_style = current_style + "; background-color: rgb(40, 40, 40);"
             child.setStyleSheet(new_style)
 
+
 class MainMenu(QWidget):
-    
+
     def __init__(self):
         super().__init__()
         main_layout = QVBoxLayout()
@@ -74,7 +75,7 @@ class MainMenu(QWidget):
         intro_label.setWordWrap(True)
         intro_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
         group_layout.addWidget(intro_label)
-    
+
         group_box.setLayout(group_layout)
         layout.addWidget(group_box)
 
@@ -102,7 +103,7 @@ class MainMenu(QWidget):
         if is_loaded:
             self.calibration_status_label.setText("Loaded")
             self.calibration_status_label.setStyleSheet(f"color: {Colors.READY_COLOR.value};")
-            self.calibration_additional_info_label.setText('Loaded from .toml file')  
+            self.calibration_additional_info_label.setText('Loaded from .toml file')
         else:
             self.calibration_status_label.setText(self.not_loaded_text)
             self.calibration_status_label.setStyleSheet(f"color: {Colors.NOT_READY_COLOR.value};")

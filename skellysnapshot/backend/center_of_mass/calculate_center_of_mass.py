@@ -13,40 +13,42 @@ from skellysnapshot.backend.center_of_mass.center_of_mass_dataclass import Cente
 # logger = logging.getLogger(__name__)
 
 mediapipe_body_landmark_names = [
-        "nose",
-        "left_eye_inner",
-        "left_eye",
-        "left_eye_outer",
-        "right_eye_inner",
-        "right_eye",
-        "right_eye_outer",
-        "left_ear",
-        "right_ear",
-        "mouth_left",
-        "mouth_right",
-        "left_shoulder",
-        "right_shoulder",
-        "left_elbow",
-        "right_elbow",
-        "left_wrist",
-        "right_wrist",
-        "left_pinky",
-        "right_pinky",
-        "left_index",
-        "right_index",
-        "left_thumb",
-        "right_thumb",
-        "left_hip",
-        "right_hip",
-        "left_knee",
-        "right_knee",
-        "left_ankle",
-        "right_ankle",
-        "left_heel",
-        "right_heel",
-        "left_foot_index",
-        "right_foot_index",
-    ]
+    "nose",
+    "left_eye_inner",
+    "left_eye",
+    "left_eye_outer",
+    "right_eye_inner",
+    "right_eye",
+    "right_eye_outer",
+    "left_ear",
+    "right_ear",
+    "mouth_left",
+    "mouth_right",
+    "left_shoulder",
+    "right_shoulder",
+    "left_elbow",
+    "right_elbow",
+    "left_wrist",
+    "right_wrist",
+    "left_pinky",
+    "right_pinky",
+    "left_index",
+    "right_index",
+    "left_thumb",
+    "right_thumb",
+    "left_hip",
+    "right_hip",
+    "left_knee",
+    "right_knee",
+    "left_ankle",
+    "right_ankle",
+    "left_heel",
+    "right_heel",
+    "left_foot_index",
+    "right_foot_index",
+]
+
+
 def mediapipe_body_names_match_expected(mediapipe_body_landmark_names: List[str]) -> bool:
     """
     Check if the mediapipe folks have changed their landmark names. If they have, then this function may need to be updated.
@@ -161,10 +163,10 @@ def build_mediapipe_skeleton(mediapipe_pose_data, segment_dataframe, mediapipe_i
 
         mediapipe_pose_skeleton_coordinates = {}
         for (
-            segment,
-            segment_info,
+                segment,
+                segment_info,
         ) in (
-            segment_dataframe.iterrows()
+                segment_dataframe.iterrows()
         ):  # iterate through the data frame by the segment name and all the info for that segment
             if segment == "trunk":
                 # based on index, extract coordinate data from fmc mediapipe data
@@ -299,9 +301,9 @@ segment_COM_percentages = [
 
 # %%
 def calculate_segment_COM(
-    segment_conn_len_perc_dataframe,
-    skelcoordinates_frame_segment_joint_XYZ,
-    num_frame_range,
+        segment_conn_len_perc_dataframe,
+        skelcoordinates_frame_segment_joint_XYZ,
+        num_frame_range,
 ):
     segment_COM_frame_dict = []
     for frame in track(num_frame_range, description="Calculating Segment Center of Mass"):
@@ -315,7 +317,7 @@ def calculate_segment_COM(
             this_segment_COM_length = segment_info["Segment_COM_Length"]
 
             this_segment_COM = this_segment_proximal + this_segment_COM_length * (
-                this_segment_distal - this_segment_proximal
+                    this_segment_distal - this_segment_proximal
             )
             segment_COM_dict[segment] = this_segment_COM
         segment_COM_frame_dict.append(segment_COM_dict)
@@ -363,10 +365,10 @@ def calculate_total_body_COM(segment_conn_len_perc_dataframe, segment_COM_frame_
 
 
 def build_anthropometric_dataframe(
-    segments: list,
-    joint_connections: list,
-    segment_COM_lengths: list,
-    segment_COM_percentages: list,
+        segments: list,
+        joint_connections: list,
+        segment_COM_lengths: list,
+        segment_COM_percentages: list,
 ) -> pd.DataFrame:
     # load anthropometric data into a pandas dataframe
     df = pd.DataFrame(
@@ -390,9 +392,9 @@ def build_anthropometric_dataframe(
 
 
 def calculate_center_of_mass(
-    freemocap_marker_data_array: np.ndarray,
-    pose_estimation_skeleton: list,
-    anthropometric_info_dataframe: pd.DataFrame,
+        freemocap_marker_data_array: np.ndarray,
+        pose_estimation_skeleton: list,
+        anthropometric_info_dataframe: pd.DataFrame,
 ):
     num_frames = freemocap_marker_data_array.shape[0]
     num_frame_range = range(num_frames)

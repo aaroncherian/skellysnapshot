@@ -29,8 +29,6 @@ def add_snapshot_tab(tab_widget, snapshot_images, snapshot_data_3d):
 
     label_layout = QVBoxLayout()
 
-
-
     for name, image in snapshot_images.items():
         # Convert the image to be compatible with PyQt6
         height, width, channel = image.shape
@@ -51,7 +49,6 @@ def add_snapshot_tab(tab_widget, snapshot_images, snapshot_data_3d):
     main_layout.addWidget(skeleton_view)
 
     main_layout.addLayout(label_layout)
-
 
     # Add the layout to the tab
     new_tab.setLayout(main_layout)

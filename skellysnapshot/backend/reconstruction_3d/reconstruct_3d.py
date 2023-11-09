@@ -40,7 +40,7 @@ def triangulate_3d_data(
     # Filter data with high reprojection error
     return SnapshotData3d(
         data_3d_camera_frame_marker_dimension=spatial_data3d_numFrames_numTrackedPoints_XYZ,
-        reprojection_error_3d=reprojection_error_data3d_numFrames_numTrackedPoints, 
+        reprojection_error_3d=reprojection_error_data3d_numFrames_numTrackedPoints,
     )
 
 # def threshold_by_confidence(

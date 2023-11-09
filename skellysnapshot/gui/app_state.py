@@ -8,6 +8,7 @@ class CalibrationState:
         self.status = "NOT_LOADED"  # or use enums
         self.calibration_object = None
 
+
 class ProcessEnableConditions:
     def __init__(self):
         self.conditions = {
@@ -27,9 +28,10 @@ class AppState:
 
     def update_calibration_state(self, calibration_object=None):
         if not isinstance(calibration_object, CameraGroup):
-            logging.warning(f"Invalid calibration object type. Must be of type CameraGroup, but is of type {type(calibration_object)}")
+            logging.warning(
+                f"Invalid calibration object type. Must be of type CameraGroup, but is of type {type(calibration_object)}")
             return
-        
+
         if calibration_object:
             self.calibration_state.calibration_object = calibration_object
             self.calibration_state.status = "LOADED"  # or use enums
@@ -44,9 +46,9 @@ class AppState:
         logging.debug(f"Current condition states: {self.process_enable_conditions.conditions}")
         self.notify_subscribers("enable_processing", all_conditions_met)
 
-
     def update_button_enable_conditions(self, condition_name, condition_value):
-        logging.info(f"Received update for enabling snapshot processing: '{condition_name}' with value '{condition_value}'")
+        logging.info(
+            f"Received update for enabling snapshot processing: '{condition_name}' with value '{condition_value}'")
         self.process_enable_conditions.conditions[condition_name] = condition_value
         logging.debug(f"Updated conditions: {self.process_enable_conditions.conditions}")
         self.check_enable_conditions()

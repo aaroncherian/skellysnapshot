@@ -17,8 +17,9 @@ def load_anipose_calibration_toml_from_path(
 
 
 if __name__ == '__main__':
-    calibration_toml_path = Path(r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_12_49_06_calibration_3\sesh_2023-05-17_12_49_06_calibration_3_camera_calibration.toml")
-    
+    calibration_toml_path = Path(
+        r"D:\2023-05-17_MDN_NIH_data\1.0_recordings\calib_3\sesh_2023-05-17_12_49_06_calibration_3\sesh_2023-05-17_12_49_06_calibration_3_camera_calibration.toml")
+
     anipose_calibration_object = load_anipose_calibration_toml_from_path(calibration_toml_path)
 
     f = 2

@@ -11,5 +11,3 @@ class MediapipeLandmarkData:
     right_hand_2d_data: np.ndarray
     body_hands_face_2d_data: np.ndarray
     pose_visibility: np.ndarray
-
-

@@ -53,5 +53,3 @@ def annotate_image(processed_image, mediapipe_results):
     # cv2.destroyAllWindows()
     annotated_image = processed_image
     return annotated_image
-
-

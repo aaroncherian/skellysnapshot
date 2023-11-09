@@ -1,4 +1,3 @@
-
 import sys
 
 from skellysnapshot.cameras.camera_test import main
@@ -42,6 +41,7 @@ class MyClass:
 
         # plot_frame_of_3d_skeleton(snapshot_data_3d=self.snapshot3d_data)
 
+
 def my_snapshot_callback(snapshot, path_to_calibration_toml, tab_widget):
     my_class = MyClass()
     my_class.run(snapshot, path_to_calibration_toml)
@@ -51,20 +51,24 @@ def my_snapshot_callback(snapshot, path_to_calibration_toml, tab_widget):
     snapshot_data_3d = my_class.snapshot3d_data
     add_snapshot_tab(tab_widget, snapshot_data, snapshot_data_3d)
 
+
 if __name__ == "__main__":
     from pathlib import Path
 
     settings_dict = {
-        'timer':4
+        'timer': 4
     }
 
-    path_to_calibration_toml = Path(r"C:\Users\aaron\FreeMocap_Data\recording_sessions\session_2023-10-16_11_53_42\recording_11_59_27_gmt-4_calibration\recording_11_59_27_gmt-4_calibration_camera_calibration.toml")
+    path_to_calibration_toml = Path(
+        r"C:\Users\aaron\FreeMocap_Data\recording_sessions\session_2023-10-16_11_53_42\recording_11_59_27_gmt-4_calibration\recording_11_59_27_gmt-4_calibration_camera_calibration.toml")
 
     app, window, tab_widget = initialize_gui()
 
-    def snapshot_callback_wrapper(snapshot):
-        my_snapshot_callback(snapshot,path_to_calibration_toml ,tab_widget)
 
-    main(snapshot_callback=snapshot_callback_wrapper,settings_dict=settings_dict)
+    def snapshot_callback_wrapper(snapshot):
+        my_snapshot_callback(snapshot, path_to_calibration_toml, tab_widget)
+
+
+    main(snapshot_callback=snapshot_callback_wrapper, settings_dict=settings_dict)
 
     sys.exit(app.exec())

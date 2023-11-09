@@ -1,4 +1,3 @@
-
 import sys
 
 import cv2
@@ -29,6 +28,7 @@ class VideoThread(QThread):
 
     def capture_frame(self):
         return self.latest_frame
+
 
 class SkellyCameraMenu(QWidget):
     snapshot_captured = Signal(dict)
@@ -79,6 +79,7 @@ class SkellyCameraMenu(QWidget):
             if frame is not None:
                 snapshot[f'cam_{i}'] = frame
         self.snapshot_captured.emit(snapshot)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

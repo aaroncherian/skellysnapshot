@@ -5,6 +5,8 @@ import cv2
 import numpy as np
 
 event_queue = deque()
+
+
 def capture_frames(capture_devices):
     frames = {}
     for i, cap in enumerate(capture_devices):
@@ -12,6 +14,7 @@ def capture_frames(capture_devices):
         if ret:
             frames[f'cam_{i}'] = frame
     return frames
+
 
 def show_in_one_window(frames, window_name='All Webcams'):
     num_frames = len(frames)
@@ -27,7 +30,8 @@ def show_in_one_window(frames, window_name='All Webcams'):
     # Show in one OpenCV window
     cv2.imshow(window_name, concatenated_frame)
 
-def main(snapshot_callback, settings_dict:dict):
+
+def main(snapshot_callback, settings_dict: dict):
     num_webcams = 2
     capture_devices = [cv2.VideoCapture(i) for i in range(num_webcams)]
 
@@ -67,8 +71,9 @@ def main(snapshot_callback, settings_dict:dict):
 def snapshot_callback_test(snapshot):
     print(snapshot.keys())
 
+
 if __name__ == "__main__":
     settings_dict = {
-        'timer':0
+        'timer': 0
     }
     main(snapshot_callback=snapshot_callback_test, settings_dict=settings_dict)
