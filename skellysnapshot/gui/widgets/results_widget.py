@@ -1,15 +1,11 @@
 import cv2
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtWidgets import QWidget,QVBoxLayout, QPushButton, QGroupBox, QHBoxLayout, QLabel, QGridLayout
-from PyQt6.QtGui import QImage, QPixmap
+from PySide6.QtCore import Signal, Qt
+from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtWidgets import QLabel, QDialog, QVBoxLayout, QGraphicsView, QWidget, QGraphicsScene, QSpacerItem, \
+    QSizePolicy, QGroupBox, QGridLayout, QPushButton, QHBoxLayout
 
 from skellysnapshot.gui.widgets.skeleton_view_widget import SkeletonViewWidget
-from PyQt6.QtWidgets import QLabel, QDialog, QVBoxLayout, QGraphicsView, QGraphicsScene,  QSizePolicy, QSpacerItem
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QLabel, QDialog, QVBoxLayout, QGraphicsView, QGraphicsScene
+
 
 class ClickableImageLabel(QLabel):
     def __init__(self, scaled_pixmap, original_pixmap):
@@ -40,15 +36,15 @@ class ClickableImageLabel(QLabel):
         zoom_dialog.exec()
 
 
-
 class ResultsViewWidget(QWidget):
-    return_to_snapshot_tab_signal = pyqtSignal()
-    def __init__(self, snapshot_data_2d, snapshot_data_3d,snapshot_center_of_mass_data):
+    return_to_snapshot_tab_signal = Signal()
+
+    def __init__(self, snapshot_data_2d, snapshot_data_3d, snapshot_center_of_mass_data):
         super().__init__()
-        layout = QVBoxLayout()
+        layout = QHBoxLayout()
 
         self.create_annotated_images_groupbox(layout, snapshot_data_2d)
-        self.create_skeleton_plot_groupbox(layout, snapshot_data_3d,snapshot_center_of_mass_data)
+        self.create_skeleton_plot_groupbox(layout, snapshot_data_3d, snapshot_center_of_mass_data)
         self.add_return_to_snapshot_tab_button(layout)
         # self.create_skeleton_plot_groupbox(layout, snapshot_data_3d,snapshot_center_of_mass_data)
         # skeleton_view = SkeletonViewWidget('3d plot')
@@ -61,9 +57,7 @@ class ResultsViewWidget(QWidget):
         spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         layout.addItem(spacer)
 
-
         self.setLayout(layout)
-
 
     def create_annotated_images_groupbox(self, layout, snapshot_data_2d):
         annotated_images_groupbox = QGroupBox("Annotated Images")
@@ -83,7 +77,7 @@ class ResultsViewWidget(QWidget):
         explanation_label.setText(refined_explanation_text)
         explanation_label.setWordWrap(True)
         explanation_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop)
-        
+
         # Add the explanatory label to the group box's overall layout
         groupbox_layout.addWidget(explanation_label)
 
@@ -92,7 +86,7 @@ class ResultsViewWidget(QWidget):
 
         row = 0
         col = 0
-        
+
         for name, image in snapshot_data_2d.annotated_images.items():
             # Convert the image to be compatible with PyQt6
             height, width, channel = image.shape
@@ -125,8 +119,6 @@ class ResultsViewWidget(QWidget):
         # Add the group box to the parent layout
         layout.addWidget(annotated_images_groupbox)
 
-
-
     def create_skeleton_plot_groupbox(self, layout, snapshot_data_3d, snapshot_center_of_mass_data):
         skeleton_plot_groupbox = QGroupBox("3D Reconstruction")
         skeleton_plot_groupbox.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
@@ -154,12 +146,10 @@ class ResultsViewWidget(QWidget):
 
         # Add the explanatory text label under the 3D plot
 
-
         skeleton_plot_groupbox.setLayout(skeleton_plot_layout)
         layout.addWidget(skeleton_plot_groupbox)
 
-
-    def add_return_to_snapshot_tab_button(self,layout):
+    def add_return_to_snapshot_tab_button(self, layout):
         self.button = QPushButton("Take Another Snapshot")
         self.button.clicked.connect(self.emit_return_to_snapshot_tab_signal)
         layout.addWidget(self.button)
@@ -167,15 +157,13 @@ class ResultsViewWidget(QWidget):
     def emit_return_to_snapshot_tab_signal(self):
         self.return_to_snapshot_tab_signal.emit()
 
-    
+
 def add_snapshot_tab(tab_widget, snapshot_images, snapshot_data_3d):
     # Create a new tab widget
     new_tab = QWidget()
     main_layout = QHBoxLayout()
 
     label_layout = QVBoxLayout()
-
-
 
     for name, image in snapshot_images.items():
         # Convert the image to be compatible with PyQt6
@@ -197,7 +185,6 @@ def add_snapshot_tab(tab_widget, snapshot_images, snapshot_data_3d):
     main_layout.addWidget(skeleton_view)
 
     main_layout.addLayout(label_layout)
-        
 
     # Add the layout to the tab
     new_tab.setLayout(main_layout)

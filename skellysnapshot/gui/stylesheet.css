@@ -1,4 +1,3 @@
-
 /* QWidget{
     background-color: #fb0000;
 }  */
@@ -10,29 +9,29 @@ QWidget {
 QTabWidget::pane {
     background-color: #4b4b4b;
     /* border:1px solid #2f2f2f */
-    
+
 }
+
 QTabBar::tab {
     background-color: #333232;
     color: white;
-    border-right: 3px solid  rgb(32, 31, 31);
-    border-top: 3px solid  rgb(32, 31, 31);
+    border-right: 3px solid rgb(32, 31, 31);
+    border-top: 3px solid rgb(32, 31, 31);
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
-    
+
     min-width: 8ex;
     padding: 5px;
-    }
+}
 
 QTabBar::tab:selected {
-        background-color: #494949;
-        border-bottom: 1px solid #494949;
-        }
-
+    background-color: #494949;
+    border-bottom: 1px solid #494949;
+}
 
 
 QMainWindow {
-    background-color: rgb(32, 31, 31);  /* Dark Gray */
+    background-color: rgb(32, 31, 31); /* Dark Gray */
 }
 
 /* Style for QLabel */
@@ -49,19 +48,19 @@ QLabel {
 QLabel#HeaderText {
     font-size: 26px;
     font-variant: small-caps;
-    background-color:  #494949
+    background-color: #494949
 }
 
 /* Style for Welcome label */
 QLabel#WelcomeLabel {
     font-size: 36px;
     font-variant: small-caps;
-    background-color:  #494949
+    background-color: #494949
 }
 
 
 QLabel#CalibrationAdditionalInfoLabel {
-    color:rgb(151, 151, 151);
+    color: rgb(151, 151, 151);
     font-weight: normal;
     text-align: center;
 }
@@ -72,7 +71,7 @@ QLabel#ExplanationLabel {
 
 /* Style for QGroupBox */
 QGroupBox {
-    font-family: Helvetica, Arial,  sans-serif;
+    font-family: Helvetica, Arial, sans-serif;
     font-size: 20px;
     font-weight: bold;
     /* text-transform: uppercase; */
@@ -82,7 +81,7 @@ QGroupBox {
     border-radius: 10px;
     margin-top: 10px;
     padding: 10px;
-    background-color: rgb(40, 40, 40);  /* Background color */
+    background-color: rgb(40, 40, 40); /* Background color */
 }
 
 QGroupBox::title {
@@ -98,7 +97,8 @@ QLabel#GroupboxLabel {
 QGroupBox:hover {
     border: 2px solid #00AEDC;
 }
-/* 
+
+/*
 QGroupBox {
     font-size: 15px;
     font-weight: bold;
@@ -107,7 +107,7 @@ QGroupBox {
     margin-top: 10px;
     padding: 20px;
     background-color: rgba(97, 95, 95, 0.5);  /* Background color */
-/* } */ 
+/* } */
 
 QToolTip {
     font-size: 12px;
@@ -117,7 +117,7 @@ QToolTip {
 
 QPushButton {
     background-color: #5a5959; /* Gray */
-    color: white; 
+    color: white;
     border: 1px solid #171717;
     padding: 5px;
     border-radius: 3px;

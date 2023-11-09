@@ -1,6 +1,8 @@
 import matplotlib
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 
+from skellysnapshot.backend.visualize_3d.mediapipe_bone_connections import build_mediapipe_skeleton
+
 matplotlib.use('QtAgg')
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
@@ -8,12 +10,11 @@ from matplotlib.figure import Figure
 import numpy as np
 
 from skellysnapshot.backend.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3d
-from skellysnapshot.backend.visualize_3d.mediapipe_bone_connections import build_mediapipe_skeleton
 
 
-class SkeletonViewWidget(QWidget):
+class Skeleton3dViewWidget(QWidget):
 
-    def __init__(self, plot_title=None):
+    def __init__(self, plot_title: str):
         super().__init__()
 
         self._layout = QVBoxLayout()
@@ -64,12 +65,6 @@ class SkeletonViewWidget(QWidget):
         ax.set_ylim([my_skel - skel_3d_range, my_skel + skel_3d_range])
         ax.set_zlim([mz_skel - skel_3d_range, mz_skel + skel_3d_range])
 
-    def plot_center_of_mass(self, snapshot_center_of_mass_data):
-        total_body_center_of_mass_xyz = snapshot_center_of_mass_data.total_body_center_of_mass_xyz
-        ax = self.ax
-        ax.scatter(total_body_center_of_mass_xyz[0, 0], total_body_center_of_mass_xyz[0, 1],
-                   total_body_center_of_mass_xyz[0, 2], color='purple')
-
     # def load_skeleton(self,skeleton_3d_data:np.ndarray):
 
     #     self.skeleton_3d_data = skeleton_3d_data
@@ -82,8 +77,7 @@ class SkeletonViewWidget(QWidget):
         fig = Mpl3DPlotCanvas(self, width=5, height=4, dpi=100)
         ax = fig.figure.axes[0]
 
-        if self.plot_title:
-            ax.set_title(self.plot_title)
+        ax.set_title(self.plot_title)
         return fig, ax
 
     def reset_skeleton_3d_plot(self):

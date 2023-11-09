@@ -1,17 +1,18 @@
-from PyQt6.QtCore import pyqtSignal, Qt
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog, QSizePolicy, QGroupBox, QSpacerItem
-
-from skellysnapshot.calibration.freemocap_anipose import CameraGroup  # Import the type
-
-from typing import Union
 from pathlib import Path
+from typing import Union
 
-from skellysnapshot.constants import Colors
+from PySide6.QtCore import Signal, Qt
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QSpacerItem, QSizePolicy, QLabel, QGroupBox, QPushButton, \
+    QFileDialog
+
+from skellysnapshot.backend.calibration.freemocap_anipose import CameraGroup
+from skellysnapshot.backend.constants import Colors
+
+
 class CalibrationManager:
     def __init__(self, app_state):
         self.anipose_calibration_object = None  # This will hold the actual calibration data
         self.app_state = app_state
-
 
     def load_calibration_from_file(self, filepath: Union[str, Path]):
         try:
@@ -21,12 +22,13 @@ class CalibrationManager:
         except Exception as e:
             print(f"Failed to load calibration object from {filepath} with error: {e}")
             self.anipose_calibration_object = None  # Reset the object to None if loading fails
-        
+
         self.app_state.update_calibration_state(self.anipose_calibration_object)
 
+
 class CalibrationMenu(QWidget):
-    calibration_toml_path_loaded = pyqtSignal(str)  # Signal emitted when a calibration file is loaded
-    return_to_main_page_signal = pyqtSignal()
+    calibration_toml_path_loaded = Signal(str)  # Signal emitted when a calibration file is loaded
+    return_to_main_page_signal = Signal()
 
     def __init__(self):
         super().__init__()
@@ -42,7 +44,7 @@ class CalibrationMenu(QWidget):
         layout.addItem(spacer)
         self.setLayout(layout)
 
-    def add_calibration_title_label(self,layout):
+    def add_calibration_title_label(self, layout):
         calibration_title_label = QLabel("Load in Your Calibration Here")
         calibration_title_label.setObjectName("HeaderText")
         calibration_title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -72,25 +74,25 @@ class CalibrationMenu(QWidget):
         calibration_explanation_groupbox.setLayout(calibration_explanation_layout)
         layout.addWidget(calibration_explanation_groupbox)
 
-
     def add_calibration_object_label(self, layout):
         calibration_status_groupbox = QGroupBox("Calibration Status")
         calibration_status_groupbox.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         calibration_status_layout = QVBoxLayout()
 
         self.calibration_object_label = QLabel("Calibration Object: Not Loaded")
-        self.calibration_object_label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)  # Set the size policy to Fixed
+        self.calibration_object_label.setSizePolicy(QSizePolicy.Policy.Fixed,
+                                                    QSizePolicy.Policy.Fixed)  # Set the size policy to Fixed
         calibration_status_layout.addWidget(self.calibration_object_label)
-        
+
         calibration_status_groupbox.setLayout(calibration_status_layout)
         layout.addWidget(calibration_status_groupbox)
-
 
     def add_calibration_toml_groupbox(self, layout):
         toml_calibration_group = QGroupBox("Load Calibration File")
         toml_cal_layout = QVBoxLayout()
         self.calibration_file_label = QLabel("Calibration File: Not Loaded")
-        self.calibration_file_label.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)  # Set the size policy to Fixed
+        self.calibration_file_label.setSizePolicy(QSizePolicy.Policy.Fixed,
+                                                  QSizePolicy.Policy.Fixed)  # Set the size policy to Fixed
         toml_cal_layout.addWidget(self.calibration_file_label)
         toml_calibration_group.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.button = QPushButton("Load Calibration File")
@@ -99,7 +101,7 @@ class CalibrationMenu(QWidget):
         toml_calibration_group.setLayout(toml_cal_layout)
         layout.addWidget(toml_calibration_group)
 
-    def add_return_to_main_page_button(self,layout):
+    def add_return_to_main_page_button(self, layout):
         self.button = QPushButton("Return to Main Page")
         self.button.clicked.connect(self.return_to_main_page_signal)
         layout.addWidget(self.button)
@@ -107,18 +109,17 @@ class CalibrationMenu(QWidget):
     def emit_return_to_main_page_signal(self):
         self.return_to_main_page_signal.emit()
 
-
-
     def load_calibration_file(self):
-        filePath, _ = QFileDialog.getOpenFileName(self, "Load Calibration File", "", "TOML Files (*.toml);;All Files (*)")
+        filePath, _ = QFileDialog.getOpenFileName(self, "Load Calibration File", "",
+                                                  "TOML Files (*.toml);;All Files (*)")
         if filePath:
             # Display only the filename in the label
             filename = filePath.split('/')[-1]
             self.calibration_file_label.setText(f"Calibration File: {filename}")
-            
+
             # Set the tooltip to show the full file path
             self.calibration_file_label.setToolTip(filePath)
-            
+
             self.calibration_toml_path_loaded.emit(filePath)
 
     def update_calibration_object_status(self, is_loaded):
@@ -128,7 +129,6 @@ class CalibrationMenu(QWidget):
         else:
             self.calibration_object_label.setText("Calibration Object: Not Loaded")
             self.calibration_object_label.setStyleSheet(f"color: {Colors.NOT_READY_COLOR.value};")
-
 
 
 if __name__ == '__main__':
