@@ -41,7 +41,7 @@ class ResultsViewWidget(QWidget):
 
     def __init__(self, snapshot_data_2d, snapshot_data_3d, snapshot_center_of_mass_data):
         super().__init__()
-        layout = QVBoxLayout()
+        layout = QHBoxLayout()
 
         self.create_annotated_images_groupbox(layout, snapshot_data_2d)
         self.create_skeleton_plot_groupbox(layout, snapshot_data_3d, snapshot_center_of_mass_data)
