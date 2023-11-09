@@ -1,18 +1,16 @@
-from PySide6.QtCore import QObject, Signal
-from PySide6.QtWidgets import QTabWidget, QWidget, QVBoxLayout, QMainWindow, QApplication
-
-from skellysnapshot.gui.widgets.main_menu import MainMenu
-from skellysnapshot.gui.widgets.camera_menu import CameraMenu
-from skellysnapshot.gui.widgets.results_widget import ResultsViewWidget
-from skellysnapshot.gui.widgets.calibration_menu import CalibrationMenu, CalibrationManager
-from skellysnapshot.backend.snapshot_analyzer import SnapshotAnalyzer
-
-from skellysnapshot.backend.task_worker_thread import TaskWorkerThread
-from skellysnapshot.backend.constants import TaskNames
-from skellysnapshot.gui.app_state import AppState
-
-
 import logging
+
+from PySide6.QtCore import QObject, Signal
+from PySide6.QtWidgets import QTabWidget, QWidget, QVBoxLayout, QMainWindow
+
+from skellysnapshot.backend.constants import TaskNames
+from skellysnapshot.backend.snapshot_analyzer import SnapshotAnalyzer
+from skellysnapshot.backend.task_worker_thread import TaskWorkerThread
+from skellysnapshot.gui.app_state import AppState
+from skellysnapshot.gui.widgets.calibration_menu import CalibrationMenu, CalibrationManager
+from skellysnapshot.gui.widgets.main_menu import MainMenu
+from skellysnapshot.gui.widgets.results_widget import ResultsViewWidget
+from skellysnapshot.gui.widgets.skellycam_camera_menu import SkellyCameraMenu
 
 logging.basicConfig(
     level=logging.INFO,
@@ -97,7 +95,7 @@ class SkellySnapshotMainWidget(QWidget):
         self.app_state = AppState()
 
         self.main_menu = MainMenu()
-        self.camera_menu = CameraMenu()
+        self.camera_menu = SkellyCameraMenu()
         self.calibration_menu = CalibrationMenu()
 
         self.layout_manager = LayoutManager()

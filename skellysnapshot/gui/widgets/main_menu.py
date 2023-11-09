@@ -1,8 +1,8 @@
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtWidgets import QGroupBox, QLabel, QWidget, QVBoxLayout, QSizePolicy, QSpacerItem
 
+from skellysnapshot.backend.constants import Colors
 
-from skellysnapshot.constants import Colors
 
 class HoverableClickableGroupBox(QGroupBox):
     clicked = Signal()

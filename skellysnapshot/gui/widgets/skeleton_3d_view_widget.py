@@ -2,6 +2,8 @@
 import matplotlib
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 
+from skellysnapshot.backend.visualize_3d.mediapipe_bone_connections import build_mediapipe_skeleton
+
 matplotlib.use('QtAgg')
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
@@ -9,7 +11,6 @@ from matplotlib.figure import Figure
 import numpy as np
 
 from skellysnapshot.backend.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3d
-from skellysnapshot.visualize_3d.mediapipe_bone_connections import build_mediapipe_skeleton
 
 
 class Skeleton3dViewWidget(QWidget):

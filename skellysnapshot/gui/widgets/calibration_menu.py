@@ -1,12 +1,15 @@
-from PyQt6.QtCore import pyqtSignal, Qt
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog, QSizePolicy, QGroupBox, QSpacerItem
-
-from skellysnapshot.calibration.freemocap_anipose import CameraGroup  # Import the type
 
 from typing import Union
 from pathlib import Path
 
-from skellysnapshot.constants import Colors
+from PySide6.QtCore import Signal, Qt
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QSpacerItem, QSizePolicy, QLabel, QGroupBox, QPushButton, \
+    QFileDialog
+
+from skellysnapshot.backend.calibration.freemocap_anipose import CameraGroup
+from skellysnapshot.backend.constants import Colors
+
+
 class CalibrationManager:
     def __init__(self, app_state):
         self.anipose_calibration_object = None  # This will hold the actual calibration data
@@ -25,8 +28,8 @@ class CalibrationManager:
         self.app_state.update_calibration_state(self.anipose_calibration_object)
 
 class CalibrationMenu(QWidget):
-    calibration_toml_path_loaded = pyqtSignal(str)  # Signal emitted when a calibration file is loaded
-    return_to_main_page_signal = pyqtSignal()
+    calibration_toml_path_loaded = Signal(str)  # Signal emitted when a calibration file is loaded
+    return_to_main_page_signal = Signal()
 
     def __init__(self):
         super().__init__()

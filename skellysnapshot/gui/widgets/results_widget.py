@@ -1,15 +1,11 @@
 import cv2
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtWidgets import QWidget,QVBoxLayout, QPushButton, QGroupBox, QHBoxLayout, QLabel, QGridLayout
-from PyQt6.QtGui import QImage, QPixmap
+from PySide6.QtCore import Signal, Qt
+from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtWidgets import QLabel, QDialog, QVBoxLayout, QGraphicsView, QWidget, QGraphicsScene, QSpacerItem, \
+    QSizePolicy, QGroupBox, QGridLayout, QPushButton, QHBoxLayout
 
 from skellysnapshot.gui.widgets.skeleton_view_widget import SkeletonViewWidget
-from PyQt6.QtWidgets import QLabel, QDialog, QVBoxLayout, QGraphicsView, QGraphicsScene,  QSizePolicy, QSpacerItem
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
-from PyQt6.QtWidgets import QLabel, QDialog, QVBoxLayout, QGraphicsView, QGraphicsScene
+
 
 class ClickableImageLabel(QLabel):
     def __init__(self, scaled_pixmap, original_pixmap):
@@ -42,7 +38,7 @@ class ClickableImageLabel(QLabel):
 
 
 class ResultsViewWidget(QWidget):
-    return_to_snapshot_tab_signal = pyqtSignal()
+    return_to_snapshot_tab_signal = Signal()
     def __init__(self, snapshot_data_2d, snapshot_data_3d,snapshot_center_of_mass_data):
         super().__init__()
         layout = QVBoxLayout()
