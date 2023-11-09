@@ -1,5 +1,8 @@
-from skellysnapshot.backend.calibration.freemocap_anipose import CameraGroup 
 import logging
+
+from skellysnapshot.backend.calibration.freemocap_anipose import CameraGroup
+
+
 class CalibrationState:
     def __init__(self):
         self.status = "NOT_LOADED"  # or use enums

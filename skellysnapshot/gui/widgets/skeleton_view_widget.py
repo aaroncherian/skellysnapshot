@@ -9,9 +9,6 @@ from matplotlib.figure import Figure
 
 import numpy as np
 
-import matplotlib.pyplot as plt
-import numpy as np
-
 from skellysnapshot.backend.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3d
 from skellysnapshot.backend.visualize_3d.mediapipe_bone_connections import build_mediapipe_skeleton
 

@@ -2,7 +2,6 @@ import sys
 
 import cv2
 from PySide6.QtGui import QImage, QPixmap
-
 from PySide6.QtWidgets import QApplication, QMainWindow, QTabWidget, QWidget, QHBoxLayout, QVBoxLayout, QLabel
 
 from skellysnapshot.gui.widgets.skeleton_3d_view_widget import Skeleton3dViewWidget

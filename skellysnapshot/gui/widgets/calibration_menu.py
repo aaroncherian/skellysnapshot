@@ -1,6 +1,6 @@
 
-from typing import Union
 from pathlib import Path
+from typing import Union
 
 from PySide6.QtCore import Signal, Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QSpacerItem, QSizePolicy, QLabel, QGroupBox, QPushButton, \

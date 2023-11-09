@@ -1,11 +1,12 @@
 
 import sys
 
-from skellysnapshot.backend.calibration.anipose_object_loader import load_anipose_calibration_toml_from_path
 from skellysnapshot.cameras.camera_test import main
+
+from skellysnapshot.backend.calibration.anipose_object_loader import load_anipose_calibration_toml_from_path
 from skellysnapshot.backend.constants import TaskNames
-from skellysnapshot.gui.main_window.initialization import initialize_gui, add_snapshot_tab
 from skellysnapshot.backend.task_worker_thread import TaskWorkerThread
+from skellysnapshot.gui.main_window.initialization import initialize_gui, add_snapshot_tab
 
 
 # Function to add a new tab with the snapshot images

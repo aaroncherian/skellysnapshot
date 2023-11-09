@@ -1,7 +1,8 @@
-import cv2
-import numpy as np
 import time
 from collections import deque
+
+import cv2
+import numpy as np
 
 event_queue = deque()
 def capture_frames(capture_devices):

@@ -1,7 +1,7 @@
 
-import cv2
 import sys
 
+import cv2
 from PySide6.QtCore import QThread, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QApplication

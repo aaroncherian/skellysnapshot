@@ -1,5 +1,5 @@
-import numpy as np
 import mediapipe as mp
+import numpy as np
 
 from skellysnapshot.backend.pose_estimation_2d.mediapipe_things.mediapipe_dataclass import MediapipeLandmarkData
 
