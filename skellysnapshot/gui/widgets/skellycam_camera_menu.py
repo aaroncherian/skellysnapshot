@@ -1,6 +1,6 @@
 import sys
 
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, QTimer
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication
 from skellycam.frontend import SkellyCamWidget
 
@@ -24,6 +24,7 @@ class SkellyCameraMenu(QWidget):
         self._layout.addWidget(self._skellycam_widget)
 
         self._skellycam_widget._manager._frame_grabber.new_frames.connect(self.handle_new_frames)
+        self.countdown_timer = 0
         
         self.waiting_for_snapshot = False  # Flag to indicate waiting for a snapshot
 
@@ -32,6 +33,7 @@ class SkellyCameraMenu(QWidget):
             snapshot = self.process_payload(multi_frame_payload)
             self.snapshot_captured.emit(snapshot)
             self.waiting_for_snapshot = False
+            print('Emitted!')
 
     def process_payload(self, payload):
         # Convert the received payload into the desired snapshot format
@@ -41,9 +43,18 @@ class SkellyCameraMenu(QWidget):
             snapshot[cam_name] = cv2.cvtColor(frame.get_image(),cv2.COLOR_BGR2RGB)
         return snapshot
 
+    def initiate_snapshot_process(self):
+        # This method initiates the snapshot process, with or without a delay
+        print('starting')
+        QTimer.singleShot(self.countdown_seconds * 1000, self.capture_snapshot)
+
+
     def capture_snapshot(self):
-        # When the button is pressed, set the flag to true
-        # The next frame that comes in will be processed and emitted
+            # QTimer.singleShot will wait for the specified number of seconds
+            QTimer.singleShot(self.countdown_timer * 1000, self.set_waiting_for_snapshot)
+
+    def set_waiting_for_snapshot(self):
+        # This method sets the flag to indicate the snapshot should be captured
         self.waiting_for_snapshot = True
 
     def enable_capture_button(self):
@@ -53,8 +64,8 @@ class SkellyCameraMenu(QWidget):
     def disable_capture_button(self):
         self.capture_button.setEnabled(False)
 
-    def capture_snapshot(self):
-        self.waiting_for_snapshot = True
+    # def capture_snapshot(self):
+    #     self.waiting_for_snapshot = True
 
 
     def close(self):
