@@ -72,6 +72,16 @@ class SkellyCameraMenu(QWidget):
         self._skellycam_widget.close()
         super().close()
 
+    def update_countdown_timer(self, new_timer_value):
+        """
+        Update the countdown timer with a new value.
+
+        Args:
+            new_timer_value (int): The new countdown timer value in seconds.
+        """
+        self.countdown_timer = new_timer_value
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

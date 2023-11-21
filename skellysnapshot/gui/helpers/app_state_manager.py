@@ -17,11 +17,19 @@ class ProcessEnableConditions:
         }
 
 
+class SnapshotState:
+    def __init__(self):
+        self.countdown_timer = 0  # Default value for countdown timer
+
+    def update_countdown_timer(self, new_timer_value):
+        self.countdown_timer = new_timer_value
+
 class AppStateManager:
     def __init__(self):
         self.calibration_state = CalibrationState()
         self.process_enable_conditions = ProcessEnableConditions()
-        self.subscribers = {'calibration': [], 'enable_processing': []}
+        self.snapshot_state = SnapshotState()
+        self.subscribers = {'calibration': [], 'enable_processing': [], 'snapshot_settings': []}
 
     def check_initial_calibration_state(self):
         self.notify_subscribers("calibration", self.calibration_state)
@@ -39,6 +47,11 @@ class AppStateManager:
             self.calibration_state.calibration_object = None
             self.calibration_state.status = "NOT_LOADED"  # or use enums
         self.notify_subscribers("calibration", self.calibration_state)
+
+    def update_snapshot_timer(self, new_timer_value):
+        self.snapshot_state.update_countdown_timer(new_timer_value)
+        logging.info(f"Countdown timer updated to {new_timer_value} seconds")
+        self.notify_subscribers("snapshot", self.snapshot_state.countdown_timer)
 
     def check_enable_conditions(self):
         all_conditions_met = all(self.process_enable_conditions.conditions.values())

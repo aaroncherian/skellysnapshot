@@ -1,5 +1,5 @@
 from PySide6.QtCore import Signal, Qt
-from PySide6.QtWidgets import QGroupBox, QLabel, QWidget, QVBoxLayout, QSizePolicy, QSpacerItem
+from PySide6.QtWidgets import QGroupBox, QLabel, QWidget, QVBoxLayout, QSizePolicy, QSpacerItem, QSpinBox
 
 from skellysnapshot.backend.constants import Colors
 
@@ -32,11 +32,16 @@ class HoverableClickableGroupBox(QGroupBox):
 
 
 class MainMenu(QWidget):
+    snapshot_timer_updated = Signal(int) 
 
-    def __init__(self):
+
+    def __init__(self, app_state_manager):
         super().__init__()
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
+
+        self.app_state_manager = app_state_manager  # Reference to the AppStateManager
+
 
         # Add Welcome Label
         self.add_welcome_label(main_layout)
@@ -48,6 +53,8 @@ class MainMenu(QWidget):
         self.add_calibration_status_groupbox(main_layout)
 
         self.add_process_snapshot_ready_groupbox(main_layout)
+
+        self.add_snapshot_timer_groupbox(main_layout)
 
         # Add Spacer
         spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
@@ -123,6 +130,24 @@ class MainMenu(QWidget):
         self.process_snapshot_ready_group_box.setLayout(group_layout)
 
         layout.addWidget(self.process_snapshot_ready_group_box)
+
+    def add_snapshot_timer_groupbox(self, layout):
+        group_box = QGroupBox("Snapshot Timer")
+        group_layout = QVBoxLayout()
+        group_box.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+
+        self.timer_spinbox = QSpinBox()
+        self.timer_spinbox.setRange(0, 60)  # Set a reasonable range for the timer
+        self.timer_spinbox.setValue(self.app_state_manager.snapshot_state.countdown_timer)
+        self.timer_spinbox.valueChanged.connect(self.on_timer_value_changed)
+
+        group_layout.addWidget(self.timer_spinbox)
+        group_box.setLayout(group_layout)
+        layout.addWidget(group_box)
+
+    def on_timer_value_changed(self, new_value):
+        self.app_state_manager.update_snapshot_timer(new_value)
+        self.snapshot_timer_updated.emit(new_value)
 
     def update_process_snapshot_ready_status(self, is_ready):
         if is_ready:

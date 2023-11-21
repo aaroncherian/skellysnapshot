@@ -16,7 +16,7 @@ class SkellySnapshotMainWidget(QWidget):
 
         self.app_state_manager = AppStateManager()
 
-        self.main_menu = MainMenu()
+        self.main_menu = MainMenu(self.app_state_manager)
         self.camera_menu = SkellyCameraMenu(parent=self)
         self.calibration_menu = CalibrationMenu()
 
@@ -35,6 +35,7 @@ class SkellySnapshotMainWidget(QWidget):
         self.setLayout(layout)
         self.add_calibration_subscribers()
         self.add_enable_processing_subscribers()
+        self.add_snapshot_settings_subscribers()
 
         self.app_state_manager.check_enable_conditions()
         self.app_state_manager.check_initial_calibration_state()
@@ -71,6 +72,14 @@ class SkellySnapshotMainWidget(QWidget):
         for subscriber in calibration_subscribers:
             self.app_state_manager.subscribe("calibration", subscriber)
 
+    def add_snapshot_settings_subscribers(self):
+        snapshot_settings_subscribers = [
+            lambda state: self.camera_menu.update_countdown_timer(state.snapshot_state.countdown_timer)
+        ]
+
+        for subscriber in snapshot_settings_subscribers:
+            self.app_state_manager.subscribe("snapshot_settings", subscriber)
+
     def connect_signals_to_slots(self):
 
         self.calibration_menu.calibration_toml_path_loaded.connect(self.calibration_manager.load_calibration_from_file)
@@ -79,6 +88,8 @@ class SkellySnapshotMainWidget(QWidget):
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
         self.main_menu.calibration_groupbox.clicked.connect(self.layout_manager.switch_to_calibration_tab)
         self.main_menu.process_snapshot_ready_group_box.clicked.connect(self.layout_manager.switch_to_camera_tab)
+        self.main_menu.snapshot_timer_updated.connect(self.camera_menu.update_countdown_timer)
+
 
     def on_snapshot_captured_signal(self, snapshot):
         self.task_manager.process_snapshot(snapshot)
