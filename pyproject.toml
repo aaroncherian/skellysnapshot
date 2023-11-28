@@ -13,6 +13,7 @@ pyside6 = "^6.6.0"
 toml = "^0.10.2"
 aniposelib = "^0.4.3"
 mediapipe = "^0.10.7"
+skelly_tracker = { git = "https://github.com/freemocap/skelly_tracker.git", branch = "philip/record_tracked_objects" }
 
 
 [build-system]
