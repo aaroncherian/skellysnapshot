@@ -8,7 +8,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">3.10, <3.12"
-skellycam = { git = "https://github.com/freemocap/skellycam.git", rev = "development" }
+skellycam = { git = "https://github.com/freemocap/skellycam.git", rev = "main" }
 pyside6 = "^6.6.0"
 toml = "^0.10.2"
 aniposelib = "^0.4.3"
