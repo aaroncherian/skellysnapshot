@@ -33,7 +33,7 @@ def run_mediapipe_detection(snapshot: Dict[str, np.ndarray]) -> SnapshotData2d:
         tracker.recorder.clear_recorded_objects()
 
     XY_data_for_all_cameras = np.stack(XY_data_for_all_cameras_list, axis=0)
-
+    XY_data_for_all_cameras = XY_data_for_all_cameras[:,:,:,0:2]
     return SnapshotData2d(
         data_2d_camera_frame_marker_dimension=XY_data_for_all_cameras,
         annotated_images=annotated_images,
