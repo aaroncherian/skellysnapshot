@@ -8,6 +8,8 @@ from skellysnapshot.backend.constants import TaskNames
 class QueueManager:
     def __init__(self, num_workers):
         self.task_queue = queue.Queue()
+        self.num_workers = num_workers
+        self.active_threads = []  # Keep track of active worker threads
         self.stop_event = threading.Event()
 
     def add_task(self, task):
@@ -18,10 +20,15 @@ class QueueManager:
             task = self.task_queue.get()
             if task is None:  # Stop signal
                 break
-            self.process_task(task)
-            self.task_queue.task_done()
 
-    def process_task(self, task):
-        worker = TaskWorkerThread(task)
-        worker.start()
-        worker.join() 
+            # Process task if below worker limit, else wait
+            if len(self.active_threads) < self.num_workers:
+                worker = TaskWorkerThread(task)
+                worker.start()
+                self.active_threads.append(worker)
+                # worker.join()  # Optional: Only if you want to wait for each task to complete
+
+            # Clean up completed threads
+            self.active_threads = [t for t in self.active_threads if t.is_alive()]
+
+            self.task_queue.task_done()
