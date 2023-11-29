@@ -10,15 +10,15 @@ from skellysnapshot.backend.reconstruction_3d.reconstruct_3d import process_2d_d
 
 
 class TaskWorkerThread(threading.Thread):
-    def __init__(self, snapshot: Dict[str, np.ndarray], anipose_calibration_object, task_queue: list,
-                 task_running_callback=None, task_completed_callback=None, all_tasks_completed_callback=None):
+    def __init__(self, task):
         super().__init__()
-        self.snapshot = snapshot
-        self.anipose_calibration_object = anipose_calibration_object
+        self.snapshot = task['snapshot']
+        self.anipose_calibration_object = task['anipose_calibration_object']
+        task_queue = task['task_queue']
         self.task_queue = task_queue
-        self.task_running_callback = task_running_callback
-        self.task_completed_callback = task_completed_callback
-        self.all_tasks_finished_callback = all_tasks_completed_callback
+        self.task_running_callback = task['task_running_callback']
+        self.task_completed_callback = task['task_completed_callback']
+        self.all_tasks_finished_callback = task['all_tasks_completed_callback']
 
         self.available_tasks = {
             TaskNames.TASK_RUN_MEDIAPIPE: self.run_2d_pose_estimation,

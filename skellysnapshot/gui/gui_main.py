@@ -6,6 +6,9 @@ from skellysnapshot.gui.widgets.calibration_menu import CalibrationMenu, Calibra
 from skellysnapshot.gui.widgets.main_menu import MainMenu
 from skellysnapshot.gui.widgets.skellycam_camera_menu import SkellyCameraMenu
 from skellysnapshot.gui.helpers.task_manager import TaskManager
+from skellysnapshot.gui.helpers.queue_manager import QueueManager
+
+import threading
 
 import logging
 logger = logging.getLogger(__name__)
@@ -26,8 +29,13 @@ class SkellySnapshotMainWidget(QWidget):
         self.layout_manager.register_tab(self.camera_menu, "Cameras")
         self.layout_manager.register_tab(self.calibration_menu, "Calibration")
 
-        self.task_manager = TaskManager(self.app_state_manager)
+        self.queue_manager = QueueManager(num_workers=5) 
+        self.task_manager = TaskManager(self.app_state_manager, self.queue_manager)
         self.calibration_manager = CalibrationManager(self.app_state_manager)
+
+        self.distribution_thread = threading.Thread(target=self.queue_manager.distribute_tasks)
+        self.distribution_thread.start()
+
 
         layout = QVBoxLayout()
         # self.layout_manager.initialize_layout()
@@ -104,4 +112,12 @@ class SkellySnapshotMainWidget(QWidget):
 
     def close(self):
         logger.info(f"Running `close` method (presumably called by parent: - closing SkellySnapshotMainWidget....")
+        self.camera_menu.close()
+
+    def closeEvent(self, event):
+        # Stop the QueueManager and wait for the distribution thread to finish
+        self.queue_manager.stop_all_workers()
+        self.queue_manager.join_all_workers()
+        self.distribution_thread.join()
+        logger.info("Close event received - closing SkellySnapshotMainWidget....")
         self.camera_menu.close()
