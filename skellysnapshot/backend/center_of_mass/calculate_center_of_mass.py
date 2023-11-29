@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from rich.progress import track
 
+import logging
 from skellysnapshot.backend.center_of_mass.center_of_mass_dataclass import CenterOfMassData
 
 # from freemocap.core_processes.detecting_things_in_2d_images.mediapipe_stuff.data_models.mediapipe_skeleton_names_and_connections import (
@@ -149,8 +150,8 @@ def build_mediapipe_skeleton(mediapipe_pose_data, segment_dataframe, mediapipe_i
     num_frame_range = range(num_frames)
 
     mediapipe_frame_segment_joint_XYZ = []  # empty list to hold all the skeleton XYZ coordinates/frame
-
-    for frame in track(num_frame_range, description="Building a MediaPipe Skeleton"):
+    logging.info('Building a Mediapipe skeleton')
+    for frame in num_frame_range:
         trunk_joint_connection = [
             "left_shoulder",
             "right_shoulder",
@@ -306,7 +307,8 @@ def calculate_segment_COM(
         num_frame_range,
 ):
     segment_COM_frame_dict = []
-    for frame in track(num_frame_range, description="Calculating Segment Center of Mass"):
+    logging.info('Calculating segment center of mass')
+    for frame in num_frame_range:
         segment_COM_dict = {}
         for segment, segment_info in segment_conn_len_perc_dataframe.iterrows():
             this_segment_XYZ = skelcoordinates_frame_segment_joint_XYZ[frame][segment]
@@ -342,8 +344,9 @@ def reformat_segment_COM(segment_COM_frame_dict, num_frame_range, num_segments):
 def calculate_total_body_COM(segment_conn_len_perc_dataframe, segment_COM_frame_dict, num_frame_range):
     # logger.info("Calculating Total Body Center of Mass")
     totalBodyCOM_frame_XYZ = np.empty([int(len(num_frame_range)), 3])
+    logging.info('Calculating total body center of mass')
 
-    for frame in track(num_frame_range, description="Calculating Total Body Center of Mass..."):
+    for frame in num_frame_range:
         this_frame_total_body_percentages = []
         this_frame_skeleton = segment_COM_frame_dict[frame]
 

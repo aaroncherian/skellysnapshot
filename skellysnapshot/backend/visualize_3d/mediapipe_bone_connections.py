@@ -1,4 +1,5 @@
 from rich.progress import track
+import logging
 
 mediapipe_indices = ['nose',
                      'left_eye_inner',
@@ -65,8 +66,9 @@ def get_joint_coordinates_from_name(frame: int, joint_name: str, pose_estimation
 def build_mediapipe_skeleton(skel_3d_data, pose_estimation_markers=mediapipe_indices,
                              pose_estimation_connections=mediapipe_connections):
     num_frames = skel_3d_data.shape[0]
+    logging.info('Building Mediapipe skeleton for plotting')
 
-    for frame in track(range(num_frames), 'Building Mediapipe Skeleton'):
+    for frame in range(num_frames):
         this_frame_connection_dict = {}
         for connection in pose_estimation_connections:
             joint_1_name = pose_estimation_connections[connection][0]
