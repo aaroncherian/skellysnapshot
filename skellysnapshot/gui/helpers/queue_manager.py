@@ -14,7 +14,7 @@ class QueueManager:
 
     def add_task(self, task):
         self.task_queue.put(task)
-        logging.info(f"Task added to queue. Queue size: {self.task_queue.qsize()}")
+        logging.info(f"Snapshot {task['id'] }added to queue. Queue size: {self.task_queue.qsize()}")
 
 
     def distribute_tasks(self):
@@ -25,11 +25,11 @@ class QueueManager:
 
             # Process task if below worker limit, else wait
             if len(self.active_threads) < self.num_workers:
-                logging.info(f"Starting new worker. Active workers: {len(self.active_threads) + 1}. Queue size: {self.task_queue.qsize()}")
+                logging.info(f"Sending snapshot {task['id']} to a thread worker. Active workers: {len(self.active_threads) + 1}. Queue size: {self.task_queue.qsize()}")
                 worker = TaskWorkerThread(task)
                 worker.start()
                 self.active_threads.append(worker)
-                # worker.join()  # Optional: Only if you want to wait for each task to complete
+                worker.join()  # Optional: Only if you want to wait for each task to complete
 
             # Clean up completed threads
             self.active_threads = [t for t in self.active_threads if t.is_alive()]

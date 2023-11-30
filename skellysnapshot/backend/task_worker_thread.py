@@ -8,11 +8,13 @@ from skellysnapshot.backend.constants import TaskNames
 from skellysnapshot.backend.pose_estimation_2d.run_mediapipe import run_mediapipe_detection
 from skellysnapshot.backend.reconstruction_3d.reconstruct_3d import process_2d_data_to_3d
 
+import logging
 
 class TaskWorkerThread(threading.Thread):
     def __init__(self, task):
         super().__init__()
-        self.snapshot = task['snapshot']
+        self.snapshot_id = task['id']
+        self.snapshot_payload = task['payload']
         self.anipose_calibration_object = task['anipose_calibration_object']
         task_queue = task['task_queue']
         self.task_queue = task_queue
@@ -28,6 +30,8 @@ class TaskWorkerThread(threading.Thread):
 
         self.tasks = {task_name: {'function': self.available_tasks[task_name], 'result': None} for task_name in
                       task_queue}
+        
+  
 
         for task_name in task_queue:
             try:
@@ -37,12 +41,12 @@ class TaskWorkerThread(threading.Thread):
                     f"The task '{task_name}' was not found in the available tasks {self.available_tasks.keys()}")
 
     def run(self):
-        print(f'Starting TaskWorkerThread for {self.task_queue}')
+        logging.info(f'Starting TaskWorkerThread for snapshot {self.snapshot_id} with tasks: {self.task_queue}')
         for task_info in self.tasks.values():  # clear any previous results
             task_info['result'] = None
 
         for task_name, task_info in self.tasks.items():
-            print(f'Running task {task_name}')
+            logging.info(f"Running task {task_name} for snapshot {self.snapshot_id}.")
 
             if self.task_running_callback is not None:
                 self.task_running_callback(task_name)
@@ -57,13 +61,14 @@ class TaskWorkerThread(threading.Thread):
                 if self.task_completed_callback:
                     self.task_completed_callback(task_name, result if is_completed else None)
             except ValueError as e:
-                print(f"Task {task_name} failed: {e}")
+                logging.warning(f"Task {task_name} failed: {e} for snapshot {self.snapshot_id}.")
 
         if self.all_tasks_finished_callback:
+            self.tasks['id'] = self.snapshot_id
             self.all_tasks_finished_callback(self.tasks)
 
     def run_2d_pose_estimation(self):
-        snapshot_data_2d = run_mediapipe_detection(self.snapshot)
+        snapshot_data_2d = run_mediapipe_detection(self.snapshot_payload)
         return True, snapshot_data_2d
 
     def run_3d_reconstruction(self):
