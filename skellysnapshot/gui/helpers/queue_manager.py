@@ -2,6 +2,8 @@ import queue
 import threading
 from skellysnapshot.backend.task_worker_thread import TaskWorkerThread
 from skellysnapshot.backend.constants import TaskNames
+from concurrent.futures import ThreadPoolExecutor
+
 
 import logging
 
@@ -9,35 +11,32 @@ class QueueManager:
     def __init__(self, num_workers):
         self.task_queue = queue.Queue()
         self.num_workers = num_workers
-        self.active_threads = []  # Keep track of active worker threads
-        self.stop_event = threading.Event()
+        self.executor = ThreadPoolExecutor(max_workers=num_workers)
+        self.active_tasks = set()
 
     def add_task(self, task):
+        # Add task to the queue and log it
         self.task_queue.put(task)
-        logging.info(f"Snapshot {task['id'] }added to queue. Queue size: {self.task_queue.qsize()}")
-
+        logging.info(f"Snapshot {task['id']} added to queue. Queue size: {self.task_queue.qsize()}")
 
     def distribute_tasks(self):
-        while not self.stop_event.is_set():
+        while True:
             task = self.task_queue.get()
             if task is None:  # Stop signal
                 break
 
-            # Process task if below worker limit, else wait
-            if len(self.active_threads) < self.num_workers:
-                logging.info(f"Sending snapshot {task['id']} to a thread worker. Active workers: {len(self.active_threads) + 1}. Queue size: {self.task_queue.qsize()}")
-                worker = TaskWorkerThread(task)
-                worker.start()
-                self.active_threads.append(worker)
-                worker.join()  # Optional: Only if you want to wait for each task to complete
-
-            # Clean up completed threads
-            self.active_threads = [t for t in self.active_threads if t.is_alive()]
+            logging.info(f"Sending snapshot {task['id']} for processing. Queue size: {self.task_queue.qsize()}")
+            processor = TaskWorkerThread(task)
+            future = self.executor.submit(processor.process_tasks)
+            self.active_tasks.add(future)
+            future.add_done_callback(lambda f: self.active_tasks.remove(f))
 
             self.task_queue.task_done()
 
-            before_cleanup = len(self.active_threads)
-            self.active_threads = [t for t in self.active_threads if t.is_alive()]
-            after_cleanup = len(self.active_threads)
-            if before_cleanup != after_cleanup:
-                logging.info(f"Cleaned up threads. Active workers: {after_cleanup}. Queue size: {self.task_queue.qsize()}")
+    def stop(self):
+        # Add a stop signal to the queue
+        self.task_queue.put(None)
+        # Wait for all tasks in the queue to be processed
+        self.task_queue.join()
+        # Shutdown the executor
+        self.executor.shutdown(wait=True)

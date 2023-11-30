@@ -10,7 +10,7 @@ from skellysnapshot.backend.reconstruction_3d.reconstruct_3d import process_2d_d
 
 import logging
 
-class TaskWorkerThread(threading.Thread):
+class TaskWorkerThread():
     def __init__(self, task):
         super().__init__()
         self.snapshot_id = task['id']
@@ -40,7 +40,7 @@ class TaskWorkerThread(threading.Thread):
                 raise ValueError(
                     f"The task '{task_name}' was not found in the available tasks {self.available_tasks.keys()}")
 
-    def run(self):
+    def process_tasks(self):
         logging.info(f'Starting TaskWorkerThread for snapshot {self.snapshot_id} with tasks: {self.task_queue}')
         for task_info in self.tasks.values():  # clear any previous results
             task_info['result'] = None

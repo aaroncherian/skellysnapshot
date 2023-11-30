@@ -29,7 +29,7 @@ class SkellySnapshotMainWidget(QWidget):
         self.layout_manager.register_tab(self.camera_menu, "Cameras")
         self.layout_manager.register_tab(self.calibration_menu, "Calibration")
 
-        self.queue_manager = QueueManager(num_workers=5) 
+        self.queue_manager = QueueManager(num_workers=4) 
         self.task_manager = TaskManager(self.app_state_manager, self.queue_manager)
         self.calibration_manager = CalibrationManager(self.app_state_manager)
 

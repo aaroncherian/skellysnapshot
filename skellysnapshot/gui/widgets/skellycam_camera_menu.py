@@ -32,28 +32,35 @@ class SkellyCameraMenu(QWidget):
         self.num_snapshots = 20  # Number of snapshots to capture
         self.snapshot_interval = 100  # Interval in milliseconds (100ms = 0.1s)
         self.snapshot_count = 0  # Counter for snapshots taken
-        self.frame_number = 0 # Counter for snapshot IDS
+        self.frame_number = -1 # Counter for snapshot IDS (-1 because it gets incremented before the first snapshot is taken)
 
 
         self.waiting_for_snapshot = False  # Flag to indicate waiting for a snapshot
 
+
     def handle_new_frames(self, multi_frame_payload):
         if self.waiting_for_snapshot:
-            snapshot_payload = self.process_payload(multi_frame_payload, self.frame_number)
-            if snapshot_payload:  # Only emit if payload processing was successful
-                snapshot = {'id': self.frame_number, 'payload': snapshot_payload}
-                self.snapshot_captured.emit(snapshot)
-            self.waiting_for_snapshot = False
+            unique_id = self.generate_unique_id()  # Generate a unique ID for the frame
+            snapshot_payload = self.process_payload(multi_frame_payload, unique_id)
             logging.info(f"Snapshot {self.frame_number} emitted.")
+            self.snapshot_captured.emit(snapshot_payload)
+            self.waiting_for_snapshot = False
+
+    def generate_unique_id(self):
+        # Generate a unique ID. This could be a simple counter or a timestamp
+        self.frame_number += 1
+        return self.frame_number
+
 
     def process_payload(self, payload, frame_id):
         # Convert the received payload into the desired snapshot format
-        snapshot = {}
+        snapshot = {'id': frame_id, 'payload': {}}
+
 
         for cam_name, frame in payload.frames.items():
 
             try:
-                snapshot[cam_name] = cv2.cvtColor(frame.get_image(), cv2.COLOR_BGR2RGB)
+                snapshot['payload'][cam_name] = cv2.cvtColor(frame.get_image(), cv2.COLOR_BGR2RGB)
             except Exception as e:
                 logging.error(f"Error processing frame from camera {cam_name} in frame {frame_id}: {e}")
                 continue
@@ -72,13 +79,13 @@ class SkellyCameraMenu(QWidget):
     def capture_first_snapshot(self):
         # Capture the first snapshot and then start the repeated capture process
         self.snapshot_count = 0  # Reset counter
-        self.frame_number = 0
+        # self.frame_number = 0
         self.set_waiting_for_snapshot()
         QTimer.singleShot(self.snapshot_interval, self.repeated_capture)
 
     def repeated_capture(self):
         if self.snapshot_count < self.num_snapshots:
-            self.frame_number += 1
+            # self.frame_number += 1
             self.set_waiting_for_snapshot()
             QTimer.singleShot(self.snapshot_interval, self.repeated_capture)
             self.snapshot_count += 1
@@ -88,7 +95,7 @@ class SkellyCameraMenu(QWidget):
 
     def set_waiting_for_snapshot(self):
         # This method sets the flag to indicate the snapshot should be captured
-        logging.info(f"Waiting for snapshot {self.frame_number}")
+        logging.info(f"Waiting for snapshot {self.frame_number+1}")
         self.waiting_for_snapshot = True
 
     def enable_capture_button(self):
