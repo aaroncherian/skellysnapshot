@@ -1,150 +1,76 @@
-import matplotlib
-from PySide6.QtWidgets import QWidget, QVBoxLayout
 
-matplotlib.use('QtAgg')
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
+
+from skellysnapshot.backend.visualize_3d.mediapipe_bone_connections import build_mediapipe_skeleton
+
 
 import numpy as np
 
 from skellysnapshot.backend.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3d
-from skellysnapshot.backend.visualize_3d.mediapipe_bone_connections import build_mediapipe_skeleton
 
+from PySide6.QtWidgets import QWidget, QVBoxLayout
+
+import pyqtgraph.opengl as gl
+from pyqtgraph.Vector import Vector
+
+import numpy as np
 
 class SkeletonViewWidget(QWidget):
-
-    def __init__(self, plot_title=None):
+    def __init__(self):
         super().__init__()
 
-        self._layout = QVBoxLayout()
-        self.setLayout(self._layout)
+        self.layout = QVBoxLayout(self)
 
-        self.plot_title = plot_title
-        self.fig, self.ax = self.initialize_skeleton_plot()
-        self._layout.addWidget(self.fig)
+        # Initialize 3D view
+        self.view = gl.GLViewWidget()
+        self.layout.addWidget(self.view)
 
-        self.skeleton_loaded = False
+        # Scatter plot item for joints
+        self.scatter = gl.GLScatterPlotItem()
+        self.view.addItem(self.scatter)
 
-        self.current_xlim = None
-        self.current_ylim = None
-        self.current_zlim = None
+        # Lines for bones
+        self.bones = []
+        self.skel_3d_range = 900  # Define the range for plot
 
-    def plot_frame_of_3d_skeleton(self, snapshot_data_3d: SnapshotData3d):
 
-        ax = self.ax
+    def plot_frame_of_3d_skeleton(self, snapshot_data_3d:SnapshotData3d):
+        # Extract 3D coordinates
         skeleton_3d_data = snapshot_data_3d.data_3d_camera_frame_marker_dimension
 
-        # Calculate mean coordinates for centering the plot
-        mx_skel = np.nanmean(skeleton_3d_data[:, 0:33, 0])
-        my_skel = np.nanmean(skeleton_3d_data[:, 0:33, 1])
-        mz_skel = np.nanmean(skeleton_3d_data[:, 0:33, 2])
-        skel_3d_range = 900  # Define the range for plot
+        mx = np.nanmean(skeleton_3d_data[:, 0:33, 0])
+        my = np.nanmean(skeleton_3d_data[:, 0:33, 1])
+        mz = np.nanmean(skeleton_3d_data[:, 0:33, 2])
 
-        # Get the x, y, z coordinates for the first (and only) frame of our snapshot
         skel_x = skeleton_3d_data[0, :, 0]
         skel_y = skeleton_3d_data[0, :, 1]
         skel_z = skeleton_3d_data[0, :, 2]
+        
+        # Update scatter plot
+        self.scatter.setData(pos=np.vstack([skel_x, skel_y, skel_z]).T)
 
-        # Plot the points
-        ax.scatter(skel_x, skel_y, skel_z)
-
+        # Draw bones
         bone_connections = build_mediapipe_skeleton(skeleton_3d_data)
-
-        # Plot the bones
+        for bone in self.bones:  # Remove existing bones
+            self.view.removeItem(bone)
+        self.bones = []
         for connection in bone_connections.keys():
-            line_start_point = bone_connections[connection][0]
-            line_end_point = bone_connections[connection][1]
-            bone_x, bone_y, bone_z = [line_start_point[0], line_end_point[0]], [line_start_point[1],
-                                                                                line_end_point[1]], [
-                line_start_point[2], line_end_point[2]]
-            ax.plot(bone_x, bone_y, bone_z)
+            start, end = bone_connections[connection]
+            line = gl.GLLinePlotItem(pos=np.array([start, end]), color=(1, 1, 1, 1), width=2)
+            self.view.addItem(line)
+            self.bones.append(line)
 
-        # Set axis limits
-        ax.set_xlim([mx_skel - skel_3d_range, mx_skel + skel_3d_range])
-        ax.set_ylim([my_skel - skel_3d_range, my_skel + skel_3d_range])
-        ax.set_zlim([mz_skel - skel_3d_range, mz_skel + skel_3d_range])
+        # Set view limits
+        self.set_view_limits(mx, my, mz)
+
+    def set_view_limits(self, mx, my, mz):
+        self.view.opts['distance'] = max([self.skel_3d_range * 2])
+        self.view.opts['center'] = Vector(mx, my, mz)
+        self.view.opts['elevation'] = 30  # Adjust this as necessary for initial view angle
+        self.view.opts['azimuth'] = 45   # Adjust this as necessary for initial view angle
+
 
     def plot_center_of_mass(self, snapshot_center_of_mass_data):
-        total_body_center_of_mass_xyz = snapshot_center_of_mass_data.total_body_center_of_mass_xyz
-        ax = self.ax
-        ax.scatter(total_body_center_of_mass_xyz[0, 0], total_body_center_of_mass_xyz[0, 1],
-                   total_body_center_of_mass_xyz[0, 2], color='purple')
-
-    # def load_skeleton(self,skeleton_3d_data:np.ndarray):
-
-    #     self.skeleton_3d_data = skeleton_3d_data
-    #     self.mediapipe_skeleton = build_skeleton(self.skeleton_3d_data,mediapipe_indices,mediapipe_connections)
-    #     self.reset_skeleton_3d_plot()
-
-    #     self.skeleton_loaded = True
-
-    def initialize_skeleton_plot(self):
-        fig = Mpl3DPlotCanvas(self, width=5, height=4, dpi=100)
-        ax = fig.figure.axes[0]
-
-        if self.plot_title:
-            ax.set_title(self.plot_title)
-        return fig, ax
-
-    def reset_skeleton_3d_plot(self):
-        self.ax.cla()
-        self.calculate_axes_means(self.skeleton_3d_data)
-        self.skel_x, self.skel_y, self.skel_z = self.get_x_y_z_data(0)
-        self.plot_skel(0, self.skel_x, self.skel_y, self.skel_z)
-
-    def calculate_axes_means(self, skeleton_3d_data):
-        self.mx_skel = np.nanmean(skeleton_3d_data[:, 0:33, 0])
-        self.my_skel = np.nanmean(skeleton_3d_data[:, 0:33, 1])
-        self.mz_skel = np.nanmean(skeleton_3d_data[:, 0:33, 2])
-        self.skel_3d_range = 900
-
-    def plot_skel(self, frame_number, skel_x, skel_y, skel_z):
-        self.ax.scatter(skel_x, skel_y, skel_z)
-        self.plot_skeleton_bones(frame_number)
-        if self.current_xlim:
-            self.ax.set_xlim([self.current_xlim[0], self.current_xlim[1]])
-            self.ax.set_ylim([self.current_ylim[0], self.current_ylim[1]])
-            self.ax.set_zlim([self.current_zlim[0], self.current_zlim[1]])
-        else:
-            self.ax.set_xlim([self.mx_skel - self.skel_3d_range, self.mx_skel + self.skel_3d_range])
-            self.ax.set_ylim([self.my_skel - self.skel_3d_range, self.my_skel + self.skel_3d_range])
-            self.ax.set_zlim([self.mz_skel - self.skel_3d_range, self.mz_skel + self.skel_3d_range])
-
-        self.ax.set_title(self.plot_title)
-        self.fig.figure.canvas.draw()
-
-    def plot_skeleton_bones(self, frame_number):
-        this_frame_skeleton_data = self.mediapipe_skeleton[frame_number]
-        for connection in this_frame_skeleton_data.keys():
-            line_start_point = this_frame_skeleton_data[connection][0]
-            line_end_point = this_frame_skeleton_data[connection][1]
-
-            bone_x, bone_y, bone_z = [line_start_point[0], line_end_point[0]], [line_start_point[1],
-                                                                                line_end_point[1]], [
-                line_start_point[2], line_end_point[2]]
-
-            self.ax.plot(bone_x, bone_y, bone_z)
-
-    def get_x_y_z_data(self, frame_number: int):
-        skel_x = self.skeleton_3d_data[frame_number, :, 0]
-        skel_y = self.skeleton_3d_data[frame_number, :, 1]
-        skel_z = self.skeleton_3d_data[frame_number, :, 2]
-
-        return skel_x, skel_y, skel_z
-
-    def replot(self, frame_number: int):
-        skel_x, skel_y, skel_z = self.get_x_y_z_data(frame_number)
-        self.current_xlim = self.ax.get_xlim()
-        self.current_ylim = self.ax.get_ylim()
-        self.current_zlim = self.ax.get_zlim()
-        self.ax.cla()
-        self.plot_skel(frame_number, skel_x, skel_y, skel_z)
-        # self.label.setText(str(frame_number))
-
-
-class Mpl3DPlotCanvas(FigureCanvasQTAgg):
-
-    def __init__(self, parent=None, width=4, height=4, dpi=100):
-        fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = fig.add_subplot(111, projection='3d')
-        super(Mpl3DPlotCanvas, self).__init__(fig)
+        # Extract center of mass data and plot
+        com = snapshot_center_of_mass_data.total_body_center_of_mass_xyz[0]
+        com_item = gl.GLScatterPlotItem(pos=np.array([com]), color=(1, 0, 1, 1), size=10)
+        self.view.addItem(com_item)
