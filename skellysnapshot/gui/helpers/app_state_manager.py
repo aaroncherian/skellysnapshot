@@ -3,6 +3,7 @@ import logging
 from skellysnapshot.backend.calibration.freemocap_anipose import CameraGroup
 
 
+
 class CalibrationState:
     def __init__(self):
         self.status = "NOT_LOADED"  # or use enums
@@ -16,19 +17,24 @@ class ProcessEnableConditions:
             # 'cameras_connected': False  # You can add more conditions here
         }
 
+class SnapshotSettings:
+    def __init__(self, countdown_timer=0, num_snapshots=0, snapshot_interval=500):
+        self.countdown_timer = countdown_timer
+        self.num_snapshots = num_snapshots
+        self.snapshot_interval = snapshot_interval
 
-class SnapshotState:
-    def __init__(self):
-        self.countdown_timer = 0  # Default value for countdown timer
-
-    def update_countdown_timer(self, new_timer_value):
-        self.countdown_timer = new_timer_value
-
+    def update(self, countdown_timer=None, num_snapshots=None, snapshot_interval=None):
+        if countdown_timer is not None:
+            self.countdown_timer = countdown_timer
+        if num_snapshots is not None:
+            self.num_snapshots = num_snapshots
+        if snapshot_interval is not None:
+            self.snapshot_interval = snapshot_interval
 class AppStateManager:
     def __init__(self):
         self.calibration_state = CalibrationState()
         self.process_enable_conditions = ProcessEnableConditions()
-        self.snapshot_state = SnapshotState()
+        self.snapshot_settings = SnapshotSettings()
         self.subscribers = {'calibration': [], 'enable_processing': [], 'snapshot_settings': []}
 
     def check_initial_calibration_state(self):
@@ -48,10 +54,10 @@ class AppStateManager:
             self.calibration_state.status = "NOT_LOADED"  # or use enums
         self.notify_subscribers("calibration", self.calibration_state)
 
-    def update_snapshot_timer(self, new_timer_value):
-        self.snapshot_state.update_countdown_timer(new_timer_value)
-        logging.info(f"Countdown timer updated to {new_timer_value} seconds")
-        self.notify_subscribers("snapshot", self.snapshot_state.countdown_timer)
+    def update_snapshot_settings(self, countdown_timer=None, num_snapshots=None, snapshot_interval=None):
+        self.snapshot_settings.update(countdown_timer, num_snapshots, snapshot_interval)
+        logging.info(f"Snapshot settings updated: {self.snapshot_settings}")
+        self.notify_subscribers("snapshot_settings", self.snapshot_settings)
 
     def check_enable_conditions(self):
         all_conditions_met = all(self.process_enable_conditions.conditions.values())

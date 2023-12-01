@@ -85,7 +85,7 @@ class SkellySnapshotMainWidget(QWidget):
 
     def add_snapshot_settings_subscribers(self):
         snapshot_settings_subscribers = [
-            lambda state: self.camera_menu.update_countdown_timer(state.snapshot_state.countdown_timer)
+            lambda settings: self.camera_menu.update_snapshot_settings(settings)
         ]
 
         for subscriber in snapshot_settings_subscribers:
@@ -102,7 +102,7 @@ class SkellySnapshotMainWidget(QWidget):
 
         self.main_menu.calibration_groupbox.clicked.connect(self.layout_manager.switch_to_calibration_tab)
         self.main_menu.process_snapshot_ready_group_box.clicked.connect(self.layout_manager.switch_to_camera_tab)
-        self.main_menu.snapshot_timer_updated.connect(self.camera_menu.update_countdown_timer)
+        self.main_menu.snapshot_timer_updated.connect(self.camera_menu.update_snapshot_settings)
 
 
     def on_snapshot_captured_signal(self, snapshot):

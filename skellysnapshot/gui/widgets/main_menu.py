@@ -54,7 +54,7 @@ class MainMenu(QWidget):
 
         self.add_process_snapshot_ready_groupbox(main_layout)
 
-        self.add_snapshot_timer_groupbox(main_layout)
+        self.add_snapshot_settings_groupbox(main_layout)
 
         # Add Spacer
         spacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
@@ -131,23 +131,44 @@ class MainMenu(QWidget):
 
         layout.addWidget(self.process_snapshot_ready_group_box)
 
-    def add_snapshot_timer_groupbox(self, layout):
-        group_box = QGroupBox("Snapshot Timer")
-        group_layout = QVBoxLayout()
+    def add_snapshot_settings_groupbox(self, layout):
+        group_box = QGroupBox("Snapshot Settings")
         group_box.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-
-        self.timer_spinbox = QSpinBox()
-        self.timer_spinbox.setRange(0, 60)  # Set a reasonable range for the timer
-        self.timer_spinbox.setValue(self.app_state_manager.snapshot_state.countdown_timer)
-        self.timer_spinbox.valueChanged.connect(self.on_timer_value_changed)
-
-        group_layout.addWidget(self.timer_spinbox)
+        group_layout = QVBoxLayout()
         group_box.setLayout(group_layout)
+
+        # Timer Spinbox
+        self.timer_spinbox = QSpinBox()
+        self.timer_spinbox.setRange(0, 60)  # Range for the timer
+        self.timer_spinbox.setValue(self.app_state_manager.snapshot_settings.countdown_timer)
+        self.timer_spinbox.valueChanged.connect(lambda: self.on_settings_value_changed('timer'))
+
+        # Num Snapshots Spinbox
+        self.num_snapshots_spinbox = QSpinBox()
+        self.num_snapshots_spinbox.setRange(1, 100)  # Adjust range as needed
+        self.num_snapshots_spinbox.setValue(self.app_state_manager.snapshot_settings.num_snapshots)
+        self.num_snapshots_spinbox.valueChanged.connect(lambda: self.on_settings_value_changed('num_snapshots'))
+
+        # Snapshot Interval Spinbox
+        self.snapshot_interval_spinbox = QSpinBox()
+        self.snapshot_interval_spinbox.setRange(100, 5000)  # Adjust range as needed
+        self.snapshot_interval_spinbox.setValue(self.app_state_manager.snapshot_settings.snapshot_interval)
+        self.snapshot_interval_spinbox.valueChanged.connect(lambda: self.on_settings_value_changed('snapshot_interval'))
+
+        group_layout.addWidget(QLabel("Countdown Timer (seconds):"))
+        group_layout.addWidget(self.timer_spinbox)
+        group_layout.addWidget(QLabel("Number of Snapshots:"))
+        group_layout.addWidget(self.num_snapshots_spinbox)
+        group_layout.addWidget(QLabel("Snapshot Interval (ms):"))
+        group_layout.addWidget(self.snapshot_interval_spinbox)
+
         layout.addWidget(group_box)
 
-    def on_timer_value_changed(self, new_value):
-        self.app_state_manager.update_snapshot_timer(new_value)
-        self.snapshot_timer_updated.emit(new_value)
+    def on_settings_value_changed(self, setting):
+        countdown_timer = self.timer_spinbox.value() if setting == 'timer' else None
+        num_snapshots = self.num_snapshots_spinbox.value() if setting == 'num_snapshots' else None
+        snapshot_interval = self.snapshot_interval_spinbox.value() if setting == 'snapshot_interval' else None
+        self.app_state_manager.update_snapshot_settings(countdown_timer, num_snapshots, snapshot_interval)
 
     def update_process_snapshot_ready_status(self, is_ready):
         if is_ready:

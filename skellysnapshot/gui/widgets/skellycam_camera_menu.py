@@ -28,8 +28,7 @@ class SkellyCameraMenu(QWidget):
 
         self._skellycam_widget._manager._frame_grabber.new_frames.connect(self.handle_new_frames)
         self.countdown_timer = 0
-        
-        self.num_snapshots = 20  # Number of snapshots to capture
+        self.num_snapshots = 0  # Number of snapshots to capture
         self.snapshot_interval = 100  # Interval in milliseconds (100ms = 0.1s)
         self.snapshot_count = 0  # Counter for snapshots taken
         self.frame_number = -1 # Counter for snapshot IDS (-1 because it gets incremented before the first snapshot is taken)
@@ -73,24 +72,28 @@ class SkellyCameraMenu(QWidget):
 
     def initiate_snapshot_process(self):
         # Start with the countdown timer before taking the first snapshot
+        self.snapshot_count = 0  # Reset counter
         QTimer.singleShot(self.countdown_timer * 1000, self.capture_first_snapshot)
 
 
     def capture_first_snapshot(self):
         # Capture the first snapshot and then start the repeated capture process
-        self.snapshot_count = 0  # Reset counter
         # self.frame_number = 0
-        self.set_waiting_for_snapshot()
+        # self.set_waiting_for_snapshot()
         QTimer.singleShot(self.snapshot_interval, self.repeated_capture)
 
     def repeated_capture(self):
-        if self.snapshot_count < self.num_snapshots:
-            # self.frame_number += 1
-            self.set_waiting_for_snapshot()
-            QTimer.singleShot(self.snapshot_interval, self.repeated_capture)
-            self.snapshot_count += 1
-        else:
-           logging.info(f'Snapshot capture complete. Captured {self.snapshot_count} snapshots.')
+        # Check the condition at the beginning of the method
+        self.snapshot_count += 1  # Increment first
+
+        if self.snapshot_count > self.num_snapshots:
+            logging.info(f'Snapshot capture complete. Captured {self.snapshot_count - 1} snapshots.')
+            return  # Exit the method if the number of snapshots has been reached
+
+        self.set_waiting_for_snapshot()
+
+        # Schedule the next snapshot
+        QTimer.singleShot(self.snapshot_interval, self.repeated_capture)
 
 
     def set_waiting_for_snapshot(self):
@@ -113,14 +116,16 @@ class SkellyCameraMenu(QWidget):
         self._skellycam_widget.close()
         super().close()
 
-    def update_countdown_timer(self, new_timer_value):
+    def update_snapshot_settings(self, settings):
         """
-        Update the countdown timer with a new value.
+        Update the camera menu with new snapshot settings.
 
         Args:
-            new_timer_value (int): The new countdown timer value in seconds.
+            settings (SnapshotSettings): The new snapshot settings.
         """
-        self.countdown_timer = new_timer_value
+        self.countdown_timer = settings.countdown_timer
+        self.num_snapshots = settings.num_snapshots
+        self.snapshot_interval = settings.snapshot_interval
 
 
 
