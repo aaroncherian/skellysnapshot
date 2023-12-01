@@ -62,15 +62,48 @@ class SkeletonViewWidget(QWidget):
         # Set view limits
         self.set_view_limits(mx, my, mz)
 
-    def set_view_limits(self, mx, my, mz):
-        self.view.opts['distance'] = max([self.skel_3d_range * 2])
-        self.view.opts['center'] = Vector(mx, my, mz)
-        self.view.opts['elevation'] = 30  # Adjust this as necessary for initial view angle
-        self.view.opts['azimuth'] = 45   # Adjust this as necessary for initial view angle
-
-
     def plot_center_of_mass(self, snapshot_center_of_mass_data):
         # Extract center of mass data and plot
         com = snapshot_center_of_mass_data.total_body_center_of_mass_xyz[0]
         com_item = gl.GLScatterPlotItem(pos=np.array([com]), color=(1, 0, 1, 1), size=10)
         self.view.addItem(com_item)
+
+    def update_3d_skeleton(self, new_snapshot_data_3d):
+        # Recalculate mean coordinates for new data
+        mx = np.nanmean(new_snapshot_data_3d[:, 0:33, 0])
+        my = np.nanmean(new_snapshot_data_3d[:, 0:33, 1])
+        mz = np.nanmean(new_snapshot_data_3d[:, 0:33, 2])
+
+        # Update scatter plot for joints
+        skel_x = new_snapshot_data_3d[0, :, 0]
+        skel_y = new_snapshot_data_3d[0, :, 1]
+        skel_z = new_snapshot_data_3d[0, :, 2]
+        self.scatter.setData(pos=np.vstack([skel_x, skel_y, skel_z]).T)
+
+        # Update bones
+        bone_connections = build_mediapipe_skeleton(new_snapshot_data_3d)
+        for bone in self.bones:
+            self.view.removeItem(bone)
+        self.bones = []
+        for connection in bone_connections.keys():
+            start, end = bone_connections[connection]
+            line = gl.GLLinePlotItem(pos=np.array([start, end]), color=(1, 1, 1, 1), width=2)
+            self.view.addItem(line)
+            self.bones.append(line)
+
+        # Update view limits
+        self.update_view_limits(mx, my, mz)
+
+    def update_center_of_mass(self, new_center_of_mass_data):
+        com = new_center_of_mass_data
+        if hasattr(self, 'com_item'):
+            self.com_item.setData(pos=np.array([com]))
+        else:
+            self.com_item = gl.GLScatterPlotItem(pos=np.array([com]), color=(1, 0, 1, 1), size=10)
+            self.view.addItem(self.com_item)
+
+    def update_view_limits(self, mx, my, mz):
+        self.view.opts['distance'] = max([self.skel_3d_range * 2])
+        self.view.opts['center'] = Vector(mx, my, mz)
+        self.view.opts['elevation'] = 30  # Adjust for initial view angle
+        self.view.opts['azimuth'] = 45   # Adjust for initial view angle

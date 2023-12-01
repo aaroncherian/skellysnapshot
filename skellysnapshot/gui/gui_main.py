@@ -5,6 +5,7 @@ from skellysnapshot.gui.helpers.layout_manager import LayoutManager
 from skellysnapshot.gui.widgets.calibration_menu import CalibrationMenu, CalibrationManager
 from skellysnapshot.gui.widgets.main_menu import MainMenu
 from skellysnapshot.gui.widgets.skellycam_camera_menu import SkellyCameraMenu
+from skellysnapshot.gui.widgets.results_widget import ResultsViewWidget
 from skellysnapshot.gui.helpers.task_manager import TaskManager
 from skellysnapshot.gui.helpers.queue_manager import QueueManager
 from skellysnapshot.gui.helpers.results_ordering_manager import ResultsOrderingManager
@@ -22,12 +23,14 @@ class SkellySnapshotMainWidget(QWidget):
         self.main_menu = MainMenu(self.app_state_manager)
         self.camera_menu = SkellyCameraMenu(parent=self)
         self.calibration_menu = CalibrationMenu()
+        self.results_menu = ResultsViewWidget()
 
         self.layout_manager = LayoutManager()
 
         self.layout_manager.register_tab(self.main_menu, "Main Menu")
         self.layout_manager.register_tab(self.camera_menu, "Cameras")
         self.layout_manager.register_tab(self.calibration_menu, "Calibration")
+        self.layout_manager.register_tab(self.results_menu, "Results")
 
         self.queue_manager = QueueManager(num_workers=4) 
         self.task_manager = TaskManager(self.app_state_manager, self.queue_manager)
@@ -114,7 +117,7 @@ class SkellySnapshotMainWidget(QWidget):
     
     def display_ordered_results(self, snapshot_id, snapshot2d_data, snapshot3d_data, snapshot_center_of_mass_data):
         logging.info(f'Sending snapshot {snapshot_id} to results for displaying')
-        self.layout_manager.add_results_tab(snapshot2d_data, snapshot3d_data, snapshot_center_of_mass_data)
+        self.results_menu.update_results(snapshot_id, snapshot2d_data, snapshot3d_data, snapshot_center_of_mass_data)
 
     def closeEvent(self, event):
         # Stop the QueueManager and wait for the distribution thread to finish
