@@ -6,6 +6,9 @@ from skellysnapshot.gui.widgets.calibration_menu import CalibrationMenu, Calibra
 from skellysnapshot.gui.widgets.main_menu import MainMenu
 from skellysnapshot.gui.widgets.skellycam_camera_menu import SkellyCameraMenu
 from skellysnapshot.gui.helpers.task_manager import TaskManager
+from skellysnapshot.gui.helpers.queue_manager import QueueManager
+from skellysnapshot.gui.helpers.results_ordering_manager import ResultsOrderingManager
+import threading
 
 import logging
 logger = logging.getLogger(__name__)
@@ -26,8 +29,16 @@ class SkellySnapshotMainWidget(QWidget):
         self.layout_manager.register_tab(self.camera_menu, "Cameras")
         self.layout_manager.register_tab(self.calibration_menu, "Calibration")
 
-        self.task_manager = TaskManager(self.app_state_manager)
+        self.queue_manager = QueueManager(num_workers=4) 
+        self.task_manager = TaskManager(self.app_state_manager, self.queue_manager)
         self.calibration_manager = CalibrationManager(self.app_state_manager)
+
+        self.results_ordering_manager = ResultsOrderingManager()
+
+
+        self.distribution_thread = threading.Thread(target=self.queue_manager.distribute_tasks)
+        self.distribution_thread.start()
+
 
         layout = QVBoxLayout()
         # self.layout_manager.initialize_layout()
@@ -74,7 +85,7 @@ class SkellySnapshotMainWidget(QWidget):
 
     def add_snapshot_settings_subscribers(self):
         snapshot_settings_subscribers = [
-            lambda state: self.camera_menu.update_countdown_timer(state.snapshot_state.countdown_timer)
+            lambda settings: self.camera_menu.update_snapshot_settings(settings)
         ]
 
         for subscriber in snapshot_settings_subscribers:
@@ -85,23 +96,31 @@ class SkellySnapshotMainWidget(QWidget):
         self.calibration_menu.calibration_toml_path_loaded.connect(self.calibration_manager.load_calibration_from_file)
         self.calibration_menu.return_to_main_page_signal.connect(self.layout_manager.switch_to_main_menu_tab)
         self.camera_menu.snapshot_captured.connect(self.on_snapshot_captured_signal)
+
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
+        self.results_ordering_manager.results_ready_to_display.connect(self.display_ordered_results)
+
         self.main_menu.calibration_groupbox.clicked.connect(self.layout_manager.switch_to_calibration_tab)
         self.main_menu.process_snapshot_ready_group_box.clicked.connect(self.layout_manager.switch_to_camera_tab)
-        self.main_menu.snapshot_timer_updated.connect(self.camera_menu.update_countdown_timer)
+        self.main_menu.snapshot_timer_updated.connect(self.camera_menu.update_snapshot_settings)
 
 
     def on_snapshot_captured_signal(self, snapshot):
+        logging.info(f'Sending snapshot {snapshot["id"]} to task manager for processing')
         self.task_manager.process_snapshot(snapshot)
 
-    def on_results_ready_signal(self, snapshot2d_data, snapshot3d_data, snapshot_center_of_mass_data):
+    def on_results_ready_signal(self, snapshot_id, snapshot2d_data, snapshot3d_data, snapshot_center_of_mass_data):
+        self.results_ordering_manager.process_results(snapshot_id, snapshot2d_data, snapshot3d_data, snapshot_center_of_mass_data)
+    
+    def display_ordered_results(self, snapshot_id, snapshot2d_data, snapshot3d_data, snapshot_center_of_mass_data):
+        logging.info(f'Sending snapshot {snapshot_id} to results for displaying')
         self.layout_manager.add_results_tab(snapshot2d_data, snapshot3d_data, snapshot_center_of_mass_data)
 
-
     def closeEvent(self, event):
+        # Stop the QueueManager and wait for the distribution thread to finish
+        self.queue_manager.stop_all_workers()
+        self.queue_manager.join_all_workers()
+        self.distribution_thread.join()
         logger.info("Close event received - closing SkellySnapshotMainWidget....")
         self.camera_menu.close()
-
-    def close(self):
-        logger.info(f"Running `close` method (presumably called by parent: - closing SkellySnapshotMainWidget....")
-        self.camera_menu.close()
+        super().closeEvent(event)  # Ensure proper closing of the QWidget

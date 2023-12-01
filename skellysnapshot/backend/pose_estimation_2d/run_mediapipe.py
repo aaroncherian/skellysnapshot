@@ -20,7 +20,7 @@ def run_mediapipe_detection(snapshot: Dict[str, np.ndarray]) -> SnapshotData2d:
 
     tracker = MediapipeHolisticTracker(static_image_mode=True)
 
-    for cam_key, image in track(snapshot.items(), description="Tracking..."):
+    for cam_key, image in snapshot.items():
         image_size = (image.shape[1], image.shape[0])
         tracker.process_image(image)
         tracker.recorder.record(tracker.tracked_objects)

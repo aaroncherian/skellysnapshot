@@ -8,6 +8,7 @@ class LayoutManager:
         self.tab_widget = QTabWidget()
         self.tab_indices = {}
         self.results_tab = None
+        # self.results_tab_counter = 0
 
     def register_tab(self, tab, name):
         tab_index = self.tab_widget.addTab(tab, name)
@@ -22,6 +23,7 @@ class LayoutManager:
 
     def add_results_tab(self, snapshot_2d_data, snapshot_3d_data, snapshot_center_of_mass_data):
         self.results_tab = ResultsViewWidget(snapshot_2d_data, snapshot_3d_data, snapshot_center_of_mass_data)
+        # self.results_tab_counter += 1
         new_tab_index = self.tab_widget.addTab(self.results_tab, f"Snapshot {self.tab_widget.count() + 1}")
         self.tab_widget.setCurrentIndex(new_tab_index)
         self.results_tab.return_to_snapshot_tab_signal.connect(self.switch_to_camera_tab)
