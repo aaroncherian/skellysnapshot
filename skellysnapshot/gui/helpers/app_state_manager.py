@@ -18,7 +18,10 @@ class ProcessEnableConditions:
         }
 
 class SnapshotSettings:
-    def __init__(self, countdown_timer=0, num_snapshots=0, snapshot_interval=500):
+    DEFAULT_COUNTDOWN_TIMER = 0
+    DEFAULT_NUM_SNAPSHOTS = 1
+    DEFAULT_SNAPSHOT_INTERVAL = 500
+    def __init__(self, countdown_timer=DEFAULT_COUNTDOWN_TIMER, num_snapshots=DEFAULT_NUM_SNAPSHOTS, snapshot_interval=DEFAULT_SNAPSHOT_INTERVAL):
         self.countdown_timer = countdown_timer
         self.num_snapshots = num_snapshots
         self.snapshot_interval = snapshot_interval
@@ -56,7 +59,7 @@ class AppStateManager:
 
     def update_snapshot_settings(self, countdown_timer=None, num_snapshots=None, snapshot_interval=None):
         self.snapshot_settings.update(countdown_timer, num_snapshots, snapshot_interval)
-        logging.info(f"Snapshot settings updated: {self.snapshot_settings}")
+        logging.info(f"Updating snapshot settings: Countdown Timer={self.snapshot_settings.countdown_timer}, Num Snapshots={self.snapshot_settings.num_snapshots}, Snapshot Interval={self.snapshot_settings.snapshot_interval}")
         self.notify_subscribers("snapshot_settings", self.snapshot_settings)
 
     def check_enable_conditions(self):

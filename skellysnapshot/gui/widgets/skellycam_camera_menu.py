@@ -3,7 +3,7 @@ import sys
 from PySide6.QtCore import Signal, QTimer
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication
 from skellycam.frontend import SkellyCamWidget
-
+from gui.helpers.app_state_manager import SnapshotSettings
 import cv2
 
 import logging
@@ -27,9 +27,9 @@ class SkellyCameraMenu(QWidget):
         self._layout.addWidget(self._skellycam_widget)
 
         self._skellycam_widget._manager._frame_grabber.new_frames.connect(self.handle_new_frames)
-        self.countdown_timer = 0
-        self.num_snapshots = 0  # Number of snapshots to capture
-        self.snapshot_interval = 100  # Interval in milliseconds (100ms = 0.1s)
+        self.countdown_timer = SnapshotSettings.DEFAULT_COUNTDOWN_TIMER
+        self.num_snapshots = SnapshotSettings.DEFAULT_NUM_SNAPSHOTS  # Number of snapshots to capture
+        self.snapshot_interval = SnapshotSettings.DEFAULT_SNAPSHOT_INTERVAL  # Interval in milliseconds (100ms = 0.1s)
         self.snapshot_count = 0  # Counter for snapshots taken
         self.frame_number = -1 # Counter for snapshot IDS (-1 because it gets incremented before the first snapshot is taken)
 
