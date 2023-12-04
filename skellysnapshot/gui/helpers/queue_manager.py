@@ -1,60 +1,53 @@
 import queue
 import threading
 from skellysnapshot.backend.task_worker_thread import TaskWorkerThread
-from skellysnapshot.backend.constants import TaskNames
 from concurrent.futures import ThreadPoolExecutor
-
-
 import logging
 import time
-
+from threading import Semaphore
+import queue
+import threading
+from concurrent.futures import ThreadPoolExecutor
+import logging
+from threading import Semaphore
 
 class QueueManager:
-    def __init__(self, num_workers):
-        start_time = time.time()
+    def __init__(self, max_concurrent_tasks):
         self.task_queue = queue.Queue()
-        self.num_workers = num_workers
-        self.executor = ThreadPoolExecutor(max_workers=num_workers)
-        init_time = time.time() - start_time
-        logging.info(f"ThreadPoolExecutor initialization time: {init_time} seconds")
-
+        self.semaphore = Semaphore(max_concurrent_tasks)
+        self.executor = ThreadPoolExecutor()
         self.active_tasks = set()
 
     def add_task(self, task):
-        # Add task to the queue and log it
         self.task_queue.put(task)
-        logging.info(f"Snapshot {task['id']} added to queue. Queue size: {self.task_queue.qsize()}")
+        logging.info(f"Task {task['id']} added to queue by thread {threading.get_ident()}. Queue size: {self.task_queue.qsize()}")
 
     def distribute_tasks(self):
         while True:
             task = self.task_queue.get()
-            if task is None:  # Stop signal
+            if task is None:
                 break
 
-            logging.info(f"Sending snapshot {task['id']} for processing. Queue size: {self.task_queue.qsize()}")
+            logging.info(f"Thread {threading.get_ident()} attempting to acquire semaphore for task {task['id']}...")
+            self.semaphore.acquire()
+            logging.info(f"Semaphore acquired for task {task['id']} by thread {threading.get_ident()}. Submitting to executor.")
+
             processor = TaskWorkerThread(task)
-            start_time = time.time()
             future = self.executor.submit(processor.process_tasks)
-            submit_time = time.time() - start_time
-            logging.info(f"Time to submit Snapshot {task['id']}: {submit_time} seconds")
-
             self.active_tasks.add(future)
-            future.add_done_callback(lambda f: self.task_done_callback(f, task['id']))
-
-
-            self.task_queue.task_done()
+            future.add_done_callback(lambda f, task_id=task['id']: self.task_done_callback(f, task_id))
 
     def task_done_callback(self, future, task_id):
+        self.semaphore.release()
+        logging.info(f"Semaphore released for task {task_id} by thread {threading.get_ident()}.")
         if future.exception() is not None:
-            logging.error(f"Snapshot {task_id} resulted in an error: {future.exception()}")
+            logging.error(f"Task {task_id} resulted in an error: {future.exception()}")
         else:
-            logging.info(f"Snapshot {task_id} completed")
+            logging.info(f"Task {task_id} completed successfully.")
         self.active_tasks.remove(future)
+        self.task_queue.task_done()
 
     def stop(self):
-        # Add a stop signal to the queue
         self.task_queue.put(None)
-        # Wait for all tasks in the queue to be processed
         self.task_queue.join()
-        # Shutdown the executor
         self.executor.shutdown(wait=True)

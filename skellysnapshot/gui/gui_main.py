@@ -35,7 +35,7 @@ class SkellySnapshotMainWidget(QWidget):
         self.layout_manager.register_tab(self.calibration_menu, "Calibration")
         self.layout_manager.register_tab(self.results_menu, "Results")
 
-        self.queue_manager = QueueManager(num_workers=4) 
+        self.queue_manager = QueueManager(max_concurrent_tasks=4)
         self.task_manager = TaskManager(self.app_state_manager, self.queue_manager)
         self.calibration_manager = CalibrationManager(self.app_state_manager)
 
@@ -101,7 +101,9 @@ class SkellySnapshotMainWidget(QWidget):
 
         self.calibration_menu.calibration_toml_path_loaded.connect(self.calibration_manager.load_calibration_from_file)
         self.calibration_menu.return_to_main_page_signal.connect(self.layout_manager.switch_to_main_menu_tab)
+        
         self.camera_menu.snapshot_captured.connect(self.on_snapshot_captured_signal)
+        self.video_menu.snapshot_ready_signal.connect(self.on_snapshot_captured_signal)
 
         self.task_manager.new_results_ready.connect(self.on_results_ready_signal)
         self.results_ordering_manager.results_ready_to_display.connect(self.display_ordered_results)
