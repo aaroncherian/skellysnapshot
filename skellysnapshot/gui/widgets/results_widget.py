@@ -298,9 +298,10 @@ class ResultsViewWidget(QWidget):
     def update_results(self, snapshot_id, snapshot_data_2d, snapshot_data_3d, snapshot_center_of_mass_data):
         skeleton_3d_data = snapshot_data_3d.data_3d_camera_frame_marker_dimension
         total_body_center_of_mass = snapshot_center_of_mass_data.total_body_center_of_mass_xyz
-        self.update_annotated_images(snapshot_data_2d)
+        # self.update_annotated_images(snapshot_data_2d)
         self.skeleton_view.update_3d_skeleton(skeleton_3d_data)
         self.skeleton_view.update_center_of_mass(total_body_center_of_mass)
+        self.skeleton_view.update_title(str(snapshot_id))
 
     def update_annotated_images(self, snapshot_data_2d):
         # Clear existing images

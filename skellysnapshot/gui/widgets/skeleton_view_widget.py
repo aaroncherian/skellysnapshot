@@ -8,6 +8,10 @@ import numpy as np
 from skellysnapshot.backend.reconstruction_3d.snapshot_3d_dataclass import SnapshotData3d
 
 from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtWidgets import QLabel
+from PySide6.QtCore import Qt
+
+
 
 import pyqtgraph.opengl as gl
 from pyqtgraph.Vector import Vector
@@ -31,6 +35,10 @@ class SkeletonViewWidget(QWidget):
         # Lines for bones
         self.bones = []
         self.skel_3d_range = 900  # Define the range for plot
+
+
+        self.title_label = QLabel(self)
+        self.title_label.setAlignment(Qt.AlignCenter)
 
 
     def plot_frame_of_3d_skeleton(self, snapshot_data_3d:SnapshotData3d):
@@ -107,3 +115,8 @@ class SkeletonViewWidget(QWidget):
         self.view.opts['center'] = Vector(mx, my, mz)
         self.view.opts['elevation'] = 30  # Adjust for initial view angle
         self.view.opts['azimuth'] = 45   # Adjust for initial view angle
+
+
+    def update_title(self, new_title:str):
+        self.title_label.setText(new_title)
+        self.title_label.adjustSize()  # Adjust size to fit new text
