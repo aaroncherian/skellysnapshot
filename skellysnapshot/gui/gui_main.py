@@ -6,6 +6,7 @@ from skellysnapshot.gui.widgets.calibration_menu import CalibrationMenu, Calibra
 from skellysnapshot.gui.widgets.main_menu import MainMenu
 from skellysnapshot.gui.widgets.skellycam_camera_menu import SkellyCameraMenu
 from skellysnapshot.gui.widgets.results_widget import ResultsViewWidget
+from skellysnapshot.gui.widgets.video_menu import VideoMenu
 from skellysnapshot.gui.helpers.task_manager import TaskManager
 from skellysnapshot.gui.helpers.queue_manager import QueueManager
 from skellysnapshot.gui.helpers.results_ordering_manager import ResultsOrderingManager
@@ -24,11 +25,13 @@ class SkellySnapshotMainWidget(QWidget):
         self.camera_menu = SkellyCameraMenu(parent=self)
         self.calibration_menu = CalibrationMenu()
         self.results_menu = ResultsViewWidget()
+        self.video_menu = VideoMenu()
 
         self.layout_manager = LayoutManager()
 
         self.layout_manager.register_tab(self.main_menu, "Main Menu")
         self.layout_manager.register_tab(self.camera_menu, "Cameras")
+        self.layout_manager.register_tab(self.video_menu, "Videos")
         self.layout_manager.register_tab(self.calibration_menu, "Calibration")
         self.layout_manager.register_tab(self.results_menu, "Results")
 
