@@ -10,6 +10,8 @@ from skellysnapshot.gui.widgets.video_menu import VideoMenu
 from skellysnapshot.gui.helpers.task_manager import TaskManager
 from skellysnapshot.gui.helpers.queue_manager import QueueManager
 from skellysnapshot.gui.helpers.results_ordering_manager import ResultsOrderingManager
+from skellysnapshot.backend.warmup.anipose_warmup import warmup_anipose
+
 import threading
 
 import logging
@@ -60,6 +62,7 @@ class SkellySnapshotMainWidget(QWidget):
         # self.connect_signals_to_event_bus()
 
         self.connect_signals_to_slots()
+        warmup_anipose()
 
     def add_enable_processing_subscribers(self):
         enable_processing_subscribers = [
