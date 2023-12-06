@@ -11,15 +11,18 @@ class TaskManager(QObject):
     def __init__(self, app_state, queue_manager):
         super().__init__()
         self.app_state = app_state
-        self.queue_manager = queue_manager  # QueueManager instance
+        self.queue_manager = queue_manager
         self.anipose_calibration_object = None
 
-    def set_anipose_calibration_object(self, calibration_state):
-        self.anipose_calibration_object = calibration_state.calibration_object
-        print(f'Calibration {self.anipose_calibration_object} loaded into task manager')
+        # Connect the signal
+        self.queue_manager.task_completed.connect(self.check_completed_tasks)
+
+    def check_completed_tasks(self):
+        while not self.queue_manager.completed_tasks.empty():
+            task_results = self.queue_manager.completed_tasks.get()
+            self.handle_all_tasks_completed(task_results)
 
     def process_snapshot(self, snapshot):
-
 
         if self.anipose_calibration_object is None:
             print("Calibration object not loaded.")
@@ -33,13 +36,17 @@ class TaskManager(QObject):
             'task_queue': [TaskNames.TASK_RUN_MEDIAPIPE, TaskNames.TASK_RUN_3D_RECONSTRUCTION, TaskNames.TASK_CALCULATE_CENTER_OF_MASS],
             'task_running_callback': None,  # Define these callbacks if needed
             'task_completed_callback': None,
-            'all_tasks_completed_callback': self.handle_all_tasks_completed
+            'all_tasks_completed_callback': None
         }
 
         # Add the task to the QueueManager's queue
 
         logging.info(f'Received snapshot {task["id"]} in task manager and sending to queue manager for processing')
         self.queue_manager.add_task(task)
+
+    def set_anipose_calibration_object(self, calibration_state):
+        self.anipose_calibration_object = calibration_state.calibration_object
+        print(f'Calibration {self.anipose_calibration_object} loaded into task manager')
 
     def handle_all_tasks_completed(self, task_results: dict):
         self.snapshot_id = task_results['id']
