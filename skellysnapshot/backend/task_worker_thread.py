@@ -2,7 +2,6 @@ import threading
 from typing import Dict
 
 import numpy as np
-import queue
 
 from skellysnapshot.backend.center_of_mass.calculate_center_of_mass import run_center_of_mass_calculations
 from skellysnapshot.backend.constants import TaskNames
@@ -12,37 +11,16 @@ from skellysnapshot.backend.reconstruction_3d.reconstruct_3d import process_2d_d
 import logging
 
 class TaskWorkerThread(threading.Thread):
-    def __init__(self, initial_snapshot_analyzer_parameters:SnapshotAnalyzerInit , max_tasks=10):
+    def __init__(self, task):
         super().__init__()
-        # Initialize with calibration object and other necessary persistent resources
-        self.anipose_calibration_object = initial_snapshot_analyzer_parameters.anipose_calibration_object
-        self.task_list = initial_snapshot_analyzer_parameters.task_list
-        self.task_running_callback = initial_snapshot_analyzer_parameters.task_running_callback
-        self.task_completed_callback = initial_snapshot_analyzer_parameters.task_completed_callback
-        self.all_tasks_finished_callback = initial_snapshot_analyzer_parameters.all_tasks_completed_callback
-        self.task_queue = queue.Queue(maxsize=max_tasks)
-        self.running = True
-
-    def add_task(self, task):
-        self.task_queue.put(task)
-
-    def stop(self):
-        self.running = False
-
-    def run(self):
-        while self.running:
-            try:
-                task = self.task_queue.get(timeout=1)  # Waits for a task for 1 second
-            except queue.Empty:
-                continue  # No task, check if still running and loop back
-
-            self.process_task(task)
-            self.task_queue.task_done()    
-
-    def process_task(self, task):
         self.snapshot_id = task['id']
         self.snapshot_payload = task['payload']
-
+        self.anipose_calibration_object = task['anipose_calibration_object']
+        task_queue = task['task_queue']
+        self.task_queue = task_queue
+        self.task_running_callback = task['task_running_callback']
+        self.task_completed_callback = task['task_completed_callback']
+        self.all_tasks_finished_callback = task['all_tasks_completed_callback']
 
         self.available_tasks = {
             TaskNames.TASK_RUN_MEDIAPIPE: self.run_2d_pose_estimation,
@@ -51,11 +29,11 @@ class TaskWorkerThread(threading.Thread):
         }
 
         self.tasks = {task_name: {'function': self.available_tasks[task_name], 'result': None} for task_name in
-                      self.task_list}
+                      task_queue}
         
   
 
-        for task_name in self.task_list:
+        for task_name in task_queue:
             try:
                 self.tasks[task_name] = {'function': self.available_tasks[task_name], 'result': None}
             except KeyError:
