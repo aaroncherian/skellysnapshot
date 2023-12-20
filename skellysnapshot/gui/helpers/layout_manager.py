@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QTabWidget
 
-from skellysnapshot.gui.widgets.results_widget import ResultsViewWidget
+from skellysnapshot.gui.widgets.generated_results_widget import GeneratedResultsViewWidget
 
 
 class LayoutManager:
@@ -22,7 +22,7 @@ class LayoutManager:
     #     self.tab_widget.addTab(self.camera_tab, "Cameras")
 
     def add_results_tab(self, snapshot_2d_data, snapshot_3d_data, snapshot_center_of_mass_data):
-        self.results_tab = ResultsViewWidget(snapshot_2d_data, snapshot_3d_data, snapshot_center_of_mass_data)
+        self.results_tab = GeneratedResultsViewWidget(snapshot_2d_data, snapshot_3d_data, snapshot_center_of_mass_data)
         # self.results_tab_counter += 1
         new_tab_index = self.tab_widget.addTab(self.results_tab, f"Snapshot {self.tab_widget.count() + 1}")
         self.tab_widget.setCurrentIndex(new_tab_index)
