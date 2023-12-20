@@ -5,7 +5,7 @@ from skellysnapshot.gui.helpers.layout_manager import LayoutManager
 from skellysnapshot.gui.widgets.calibration_menu import CalibrationMenu, CalibrationManager
 from skellysnapshot.gui.widgets.main_menu import MainMenu
 from skellysnapshot.gui.widgets.skellycam_camera_menu import SkellyCameraMenu
-from skellysnapshot.gui.widgets.results_widget import ResultsViewWidget
+from skellysnapshot.gui.widgets.static_results_widget import ResultsViewWidget
 from skellysnapshot.gui.widgets.video_menu import VideoMenu
 from skellysnapshot.gui.helpers.task_manager import TaskManager
 from skellysnapshot.gui.helpers.queue_manager import QueueManager
