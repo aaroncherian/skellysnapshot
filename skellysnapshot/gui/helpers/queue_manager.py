@@ -1,73 +1,65 @@
 import queue
 import threading
-from skellysnapshot.backend.task_worker_thread import TaskWorkerThread
+from skellysnapshot.backend.task_worker_thread import TaskWorker
 # from concurrent.futures import ThreadPoolExecutor
 import logging
-import time
-from threading import Semaphore
+
 import queue
 import threading
 
+import multiprocessing
 
-from concurrent.futures import ProcessPoolExecutor
-from threading import Semaphore
 
 from PySide6.QtCore import QObject, Signal
 
-def task_worker_function(task):
-    worker = TaskWorkerThread(task)
-    return worker.process_tasks()
+def task_worker_function(task_queue, results_queue, init_params):
+    # Initialize the TaskWorker with provided initialization parameters
+    worker = TaskWorker(init_params)
 
+    while True:
+        # Wait for a new task; block if the queue is empty
+        frame_data = task_queue.get()
+
+        # Check for the sentinel value to shut down the worker
+        if frame_data is None:
+            break
+
+        # Process the frame and put the result in the results queue
+        result = worker.process_snapshot(frame_data)
+        results_queue.put(result)
 
 class QueueManager(QObject):
-    task_completed = Signal()
+    task_completed = Signal(dict)
 
     def __init__(self, max_concurrent_tasks):
         super().__init__()
-        self.task_queue = queue.Queue()
-        self.semaphore = Semaphore(max_concurrent_tasks)
-        self.executor = ProcessPoolExecutor(max_workers=max_concurrent_tasks)
-        self.active_tasks = set()
-        self.completed_tasks = queue.Queue()  # Assuming you need this for completed tasks
+        self.task_queue = multiprocessing.Queue()
+        self.results_queue = multiprocessing.Queue()
+        self.workers = []
+        self.max_concurrent_tasks = max_concurrent_tasks
 
+    def initialize_workers(self, init_params):
+        for _ in range(self.max_concurrent_tasks):
+            p = multiprocessing.Process(target=task_worker_function, args=(self.task_queue, self.results_queue, init_params))
+            p.start()
+            self.workers.append(p)
+        logging.info("Worker processes initialized.")
 
     def add_task(self, task):
         self.task_queue.put(task)
-        logging.info(f"Task {task['id']} added to queue. Queue size: {self.task_queue.qsize()}")
+        logging.info(f"Task {task['id']} added to queue.")
 
-    def distribute_tasks(self):
-        while True:
-            task = self.task_queue.get()
-            if task is None:
-                break
-
-            self.semaphore.acquire()
-            logging.info(f"Semaphore acquired for task {task['id']}. Submitting to executor.")
-            future = self.executor.submit(task_worker_function, task)
-            self.active_tasks.add(future)
-            future.add_done_callback(lambda f, task_id=task['id']: self.task_done_callback(f, task_id))
-
-    def task_done_callback(self, future, task_id):
-        self.semaphore.release()
-        logging.info(f"Semaphore released for task {task_id}.")
-        
-        if future.exception() is not None:
-            logging.error(f"Task {task_id} resulted in an error: {future.exception()}")
-        else:
-            logging.info(f"Task {task_id} completed successfully.")
-            # Optionally, you can add the result to a completed tasks queue here
-            # if you need to process the results further
-            self.completed_tasks.put(future.result())
-
-        # Remove the completed task from active_tasks
-        self.active_tasks.remove(future)
-
-        # Emit signal that a task is done
-        self.task_completed.emit()
-
-        self.task_queue.task_done()
+    def check_completed_tasks(self):
+        while not self.results_queue.empty():
+            result = self.results_queue.get()
+            self.task_completed.emit(result)
+            logging.info(f"Task {result['id']} completed.")
 
     def stop(self):
-        self.task_queue.put(None)
-        self.task_queue.join()
-        self.executor.shutdown(wait=True)
+        for _ in self.workers:
+            self.task_queue.put(None)
+        for worker in self.workers:
+            worker.join()
+        self.task_queue.close()
+        self.results_queue.close()
+        logging.info("Worker processes stopped.")
